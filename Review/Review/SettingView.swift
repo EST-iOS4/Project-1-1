@@ -8,8 +8,47 @@
 import SwiftUI
 
 struct SettingView: View {
+    @AppStorage("isDarkMode") var isDarkMode: Bool = false
+    @AppStorage("fontSize") var fontSize: Double = 16
+    @AppStorage("userName") var userName: String = ""
+    
+    func resetSettings() {
+        isDarkMode = false
+        fontSize = 16
+    }
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Form {
+            Section(header: Text("화면 설정")) {
+                
+                HStack {
+                    Label("이름: ", systemImage: "person.fill")
+                    TextField("이름을 입력하세요", text: $userName)
+                        .textFieldStyle(.roundedBorder)
+                    }
+                    .padding(.top, 5)
+                
+                Toggle(isOn: $isDarkMode) {
+                    Label("다크 모드", systemImage: isDarkMode ? "moon.fill" : "sun.max.fill")
+                }
+                
+                HStack {
+                    Label("글꼴 크기", systemImage: "textformat.size")
+                    Slider(value: $fontSize, in: 10...30, step: 1) {
+                        Text("글꼴 크기")
+                    }
+                    Text("\(Int(fontSize))pt")
+                        .frame(width: 40)
+                }
+            }
+            
+            Section(header: Text("앱 정보")) {
+                Button(action: resetSettings) {
+                    Label("설정 초기화", systemImage: "arrow.counterclockwise")
+                }
+                .foregroundStyle(.red)
+            }
+        }
     }
 }
 
