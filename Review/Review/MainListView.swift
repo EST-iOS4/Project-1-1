@@ -4,6 +4,8 @@
 //
 //  Created by 송영민 on 8/11/25.
 //
+// 1
+
 import SwiftUI
 
 struct Memo: Identifiable {
