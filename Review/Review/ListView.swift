@@ -7,7 +7,7 @@
 
 
 import SwiftUI
-
+// 원래 [Memo]에 day, title, content가 아닌 text 프로퍼티 하나만 남기려고 했는데, 다시 생각해보니 일단 day는 남기는게 좋겠다는 생각이 들었습니다. 그런데 회고에 title이 굳이 필요할까? 라는 생각이 들어서 이 부분은 의견을 나누면 좋을 것 같아요.
 struct Memo: Identifiable {
     let id = UUID()
     let day: Date
@@ -88,6 +88,14 @@ struct ListView: View {
                             }
                         }
                     }
+//                  ToolbarItem(placement: .navigationBarTrailing) {
+//                                      NavigationLink {
+//                                          TexteditView(reviews: $memos)
+//                                      } label: {
+//                                          Image(systemName: "plus")
+//                                      }
+//                                  }
+// 이 부분은 플러스 버튼입니다. TexteditView에 변수를 전달하는 코드가 있어서, 위에서 의견을 나누고자 한 부분을 해결한 후 TexteditView를 활성할 때 같이 활성화하면 될 듯합니다.
                 }
 
                 if showMenu {
