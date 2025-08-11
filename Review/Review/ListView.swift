@@ -31,16 +31,16 @@ enum Screen {
 struct ListView: View {
     @State private var selectedScreen: Screen = .memoList
     @State private var showMenu = false
-    
+
     @AppStorage("isDarkMode") var isDarkMode = false
     @AppStorage("fontSize") var fontSize: Double = 16
-    
+
     let memos: [Memo] = [
         Memo(day: Date(), title: "할 일", content: "SwiftUI 공부하기"),
         Memo(day: Date(), title: "장보기", content: "내일 할일"),
         Memo(day: Date(), title: "아이디어", content: "프로젝트 만들기"),
     ]
-    
+
     var body: some View {
         NavigationView {
             ZStack(alignment: .leading) {
@@ -65,11 +65,11 @@ struct ListView: View {
                         }
                         .listStyle(PlainListStyle())
                         .navigationTitle("회고")
-                        
+
                     case .statistics:
                         ChartView()
                             .navigationTitle("통계")
-                        
+
                     case .settings:
                         SettingView()
                             .navigationTitle("설정")
@@ -89,7 +89,7 @@ struct ListView: View {
                         }
                     }
                 }
-                
+
                 if showMenu {
                     Color.black.opacity(0.3)
                         .ignoresSafeArea()
@@ -98,7 +98,7 @@ struct ListView: View {
                                 showMenu = false
                             }
                         }
-                    
+
                     SidebarView(selectedScreen: $selectedScreen, showMenu: $showMenu)
                         .frame(width: UIScreen.main.bounds.width * 7 / 9)
                         .background(Color.white)
