@@ -20,7 +20,7 @@ func formatDate(_ date: Date) -> String {
   return formatter.string(from: date)
 }
 
-struct MainListView: View {
+struct ListView: View {
   let memos: [Memo] = [
     Memo(day: Date(), title: "할 일", content: "SwiftUI 공부하기"),
     Memo(day: Date(), title: "장보기", content: "내일 할일"),
@@ -87,5 +87,5 @@ struct MainListView: View {
 }
 
 #Preview {
-  MainListView()
+  ListView()
 }
