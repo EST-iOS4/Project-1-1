@@ -35,7 +35,7 @@ struct ContentView: View {
           .font(.title)
           .padding()
       }
-        Button("Fetch User Data") {
+        Button("살려주세요") {
           Task {
             do {
               isLoading = true
