@@ -1,5 +1,5 @@
 //
-//  MainListView.swift
+//  ListView.swift
 //  Review
 //
 //  Created by 송영민 on 8/11/25.
@@ -34,11 +34,22 @@ struct ListView: View {
 
     @AppStorage("isDarkMode") var isDarkMode = false
     @AppStorage("fontSize") var fontSize: Double = 16
+  
+  static func makeDate(year: Int, month: Int, day: Int) -> Date {
+         var components = DateComponents()
+         components.year = year
+         components.month = month
+         components.day = day
+         return Calendar.current.date(from: components) ?? Date()
+     }
 
     let memos: [Memo] = [
-        Memo(day: Date(), title: "할 일", content: "SwiftUI 공부하기"),
-        Memo(day: Date(), title: "장보기", content: "내일 할일"),
-        Memo(day: Date(), title: "아이디어", content: "프로젝트 만들기"),
+      Memo(day: makeDate(year: 2025, month: 7, day: 1), title: "독서", content: "책 이름 : UI/UX 시작하기"),
+      Memo(day: makeDate(year: 2025, month: 7, day: 12), title: "장보기", content: "수박, 복숭아, 양파, 아보카도"),
+      Memo(day: makeDate(year: 2025, month: 7, day: 31), title: "아이디어", content: "프로젝트 UI 생각하기"),
+      Memo(day: makeDate(year: 2025, month: 8, day: 5), title: "할 일", content: "SwiftUI 공부하기"),
+      Memo(day: makeDate(year: 2025, month: 8, day: 10), title: "공부", content: "백준 알고리즘 풀기"),
+      Memo(day: makeDate(year: 2025, month: 8, day: 12), title: "프로젝트", content: "프로젝트 만들기")
     ]
 
     var body: some View {
@@ -67,7 +78,7 @@ struct ListView: View {
                         .navigationTitle("회고")
 
                     case .statistics:
-                        ChartView()
+                      ChartView(markedDates: Set(memos.map { Calendar.current.startOfDay(for: $0.day) }))
                             .navigationTitle("통계")
 
                     case .settings:
@@ -117,6 +128,8 @@ struct ListView: View {
         }
         // 다크모드 실시간 반영
         .preferredColorScheme(isDarkMode ? .dark : .light)
+      
+      
     }
 }
 
