@@ -12,9 +12,10 @@ struct SidebarView: View {
       VStack(alignment: .leading) {
             Text("이름") // 이름 넣기
               .font(.title2)
-              .padding(.top, 40)
+              .padding(.top, 20)
               .padding(.bottom, 20)
             Divider()
+          
             Button("회고 목록") {}
               .padding(.vertical, 10)
             Button("통계") {}
