@@ -10,10 +10,11 @@ import SwiftUI
 struct TexteditView: View {
     @Environment(\.dismiss) var dismiss
 
-    // ListView의 memos 배열과 연결할 바인딩 변수
     @Binding var reviews: [Memo]
 
     @State private var reviewText: String = ""
+    @State private var savedText: String = ""
+    
     @FocusState private var isKeyboardFocused: Bool
 
     var body: some View {
@@ -50,25 +51,36 @@ struct TexteditView: View {
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("완료") {
-                    isKeyboardFocused = false
+                    saveAndDismissKeyboard()
                 }
-                .disabled(reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || reviewText == savedText)
             }
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            isKeyboardFocused = true
+        }
     }
 
     private func handleBackAction() {
         let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedText.isEmpty {
-            // 수정된 Memo 구조체에 맞게 text만 전달하여 객체 생성
             reviews.append(Memo(text: trimmedText))
         }
         dismiss()
     }
+
+    private func saveAndDismissKeyboard() {
+        let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if !trimmedText.isEmpty && trimmedText != savedText {
+            reviews.append(Memo(text: trimmedText))
+        }
+        savedText = trimmedText
+        isKeyboardFocused = false
+    }
 }
 
-// 기존 #Preview { ... } 전체 삭제하고 아래로 교체
 struct TexteditView_Previews: PreviewProvider {
     @State static var sampleReviews = [Memo(text: "미리보기 텍스트")]
 
