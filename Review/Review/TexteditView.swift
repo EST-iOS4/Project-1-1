@@ -55,6 +55,7 @@ struct TexteditView: View {
                 .disabled(reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 
     private func handleBackAction() {
