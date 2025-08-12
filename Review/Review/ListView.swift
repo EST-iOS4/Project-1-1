@@ -32,6 +32,7 @@ struct ListView: View {
     @State private var selectedScreen: Screen = .memoList
     @State private var showMenu = false
 
+
     @AppStorage("isDarkMode") var isDarkMode = false
     @AppStorage("fontSize") var fontSize: Double = 16
   
@@ -133,8 +134,6 @@ struct ListView: View {
         }
         // 다크모드 실시간 반영
         .preferredColorScheme(isDarkMode ? .dark : .light)
-      
-      
     }
 }
 
