@@ -8,11 +8,12 @@
 
 import SwiftUI
 
-// day와 content를 let에서 var로 변경
 // 메모부터 스크린까지 따로 파일을 생성해서 옮기는 것을 제미나이가 추천함...
 struct Memo: Identifiable {
   let id = UUID()
   var day: Date
+  // var tags: String 추가(New)
+  var tags: String
   var content: String
 }
 
@@ -43,31 +44,31 @@ struct ListView: View {
     components.day = day
     return Calendar.current.date(from: components) ?? Date()
   }
-  // let -> @State private var
+  // day와 content 사이에 tags 추가(New)
   @State private var memos: [Memo] = [
     Memo(
       day: Self.makeDate(year: 2025, month: 7, day: 1),
-      content: "책 이름 : UI/UX 시작하기"
+      tags: "독서", content: "책 이름 : UI/UX 시작하기"
     ),
     Memo(
       day: Self.makeDate(year: 2025, month: 7, day: 12),
-      content: "수박, 복숭아, 양파, 아보카도"
+      tags: "과일", content: "수박, 복숭아, 양파, 아보카도"
     ),
     Memo(
       day: Self.makeDate(year: 2025, month: 7, day: 31),
-      content: "프로젝트 UI 생각하기"
+      tags: "할 일", content: "프로젝트 UI 생각하기"
     ),
     Memo(
       day: Self.makeDate(year: 2025, month: 8, day: 5),
-      content: "SwiftUI 공부하기"
+      tags: "할 일", content: "SwiftUI 공부하기"
     ),
     Memo(
       day: Self.makeDate(year: 2025, month: 8, day: 10),
-      content: "백준 알고리즘 풀기"
+      tags: "할 일", content: "백준 알고리즘 풀기"
     ),
     Memo(
       day: Self.makeDate(year: 2025, month: 8, day: 12),
-      content: "프로젝트 만들기"
+      tags: "할 일", content: "프로젝트 만들기"
     ),
   ]
 
@@ -81,16 +82,25 @@ struct ListView: View {
               NavigationLink {
                 TexteditView(memos: $memos, memoToEdit: memo)
               } label: {  //Navi Label
-                VStack(alignment: .leading) {  //VS
+                VStack(alignment: .leading, spacing: 8) {   //VS // VStack 간격 추가(New)
+                  if !memo.tags.isEmpty { // 86~93까지 태그UI추가, 원래 아래에 있던 Text를 위로 가져와서 VStack으로 묶음(New)
+                    Text(memo.tags)
+                      .font(.caption)
+                      .fontWeight(.bold)
+                      .padding(.horizontal, 10)
+                      .padding(.vertical, 4)
+                      .foregroundStyle(.white)
+                      .background(Capsule().fill(Color.blue))
+                  }
+                  Text(memo.content)
+                    .font(.system(size: fontSize - 2))
+                    .foregroundStyle(.primary)
                   HStack {  //HS
                     Spacer()
                     Text(formatDate(memo.day))
                       .font(.system(size: fontSize - 4))
                       .foregroundStyle(.gray)
                   }  // HS 끝
-                  Text(memo.content)
-                    .font(.system(size: fontSize - 2))
-                    .foregroundStyle(.primary)
                 }  //VS 끝
                 .padding(.vertical, 5)
               }  // Navi Label 끝
