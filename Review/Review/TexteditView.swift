@@ -12,11 +12,11 @@ struct TexteditView: View {
     @Environment(\.dismiss) var dismiss
     
     @Binding var memos: [Memo]
-    
     var memoToEdit: Memo?
     
     @State private var selectedDate: Date
     @State private var reviewText: String
+    @State private var lastSavedText: String
     
     private var isEditMode: Bool
     
@@ -29,14 +29,19 @@ struct TexteditView: View {
         
         if let memo = memoToEdit {
             self._selectedDate = State(initialValue: memo.day)
-            self._reviewText = State(initialValue: memo.content)
+            let initialText = memo.content
+            self._reviewText = State(initialValue: initialText)
+            self._lastSavedText = State(initialValue: initialText)
         } else {
             self._selectedDate = State(initialValue: Date())
             self._reviewText = State(initialValue: "")
+            self._lastSavedText = State(initialValue: "")
         }
     }
     
     var body: some View {
+        let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         VStack {
             DatePicker("날짜 선택", selection: $selectedDate, displayedComponents: .date)
                 .datePickerStyle(.graphical)
@@ -69,16 +74,16 @@ struct TexteditView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    dismiss()
+                    saveAndDismiss()
                 } label: {
                     Image(systemName: "chevron.backward")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("완료") {
-                    saveAndDismiss()
+                    saveAndStay()
                 }
-                .disabled(reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(trimmedText.isEmpty || trimmedText == lastSavedText)
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -89,7 +94,6 @@ struct TexteditView: View {
     
     private func saveMemo() {
         let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedText.isEmpty else { return }
         
         if let memoToEdit = memoToEdit,
            let index = memos.firstIndex(where: { $0.id == memoToEdit.id }) {
@@ -102,11 +106,19 @@ struct TexteditView: View {
     }
     
     private func saveAndDismiss() {
-        saveMemo()
+        let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedText.isEmpty && trimmedText != lastSavedText {
+            saveMemo()
+        }
         dismiss()
     }
+    
+    private func saveAndStay() {
+        saveMemo()
+        isKeyboardFocused = false
+        lastSavedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
-
 struct TexteditView_Previews: PreviewProvider {
     @State static var sampleMemos = [Memo(day: Date(), content: "미리보기 텍스트")]
     
