@@ -4,14 +4,13 @@
 //
 //  Created by 송영민 on 8/11/25.
 //
-
+//
 
 import SwiftUI
-// 원래 [Memo]에 day, title, content가 아닌 text 프로퍼티 하나만 남기려고 했는데, 다시 생각해보니 일단 day는 남기는게 좋겠다는 생각이 들었습니다. 그런데 회고에 title이 굳이 필요할까? 라는 생각이 들어서 이 부분은 의견을 나누면 좋을 것 같아요.
+// 원래 [Memo]에 day, title, content가 아닌 text 프로퍼티 하나만 남기려고 했는데, 다시 생각해보니 일단 day는 남기는게 좋겠다는 생각이 들었습니다. 그런데 회고에 title이 굳이 필요할까? 라는 생각이 들어서 이 부분은 의견을 나누면 좋을 것 같아요. -> "title" x / -> 카테고리or태그 ,
 struct Memo: Identifiable {
     let id = UUID()
     let day: Date
-    let title: String
     let content: String
 }
 
@@ -44,12 +43,12 @@ struct ListView: View {
      }
 
     let memos: [Memo] = [
-      Memo(day: makeDate(year: 2025, month: 7, day: 1), title: "독서", content: "책 이름 : UI/UX 시작하기"),
-      Memo(day: makeDate(year: 2025, month: 7, day: 12), title: "장보기", content: "수박, 복숭아, 양파, 아보카도"),
-      Memo(day: makeDate(year: 2025, month: 7, day: 31), title: "아이디어", content: "프로젝트 UI 생각하기"),
-      Memo(day: makeDate(year: 2025, month: 8, day: 5), title: "할 일", content: "SwiftUI 공부하기"),
-      Memo(day: makeDate(year: 2025, month: 8, day: 10), title: "공부", content: "백준 알고리즘 풀기"),
-      Memo(day: makeDate(year: 2025, month: 8, day: 12), title: "프로젝트", content: "프로젝트 만들기")
+      Memo(day: makeDate(year: 2025, month: 7, day: 1), content: "책 이름 : UI/UX 시작하기"),
+      Memo(day: makeDate(year: 2025, month: 7, day: 12), content: "수박, 복숭아, 양파, 아보카도"),
+      Memo(day: makeDate(year: 2025, month: 7, day: 31), content: "프로젝트 UI 생각하기"),
+      Memo(day: makeDate(year: 2025, month: 8, day: 5), content: "SwiftUI 공부하기"),
+      Memo(day: makeDate(year: 2025, month: 8, day: 10), content: "백준 알고리즘 풀기"),
+      Memo(day: makeDate(year: 2025, month: 8, day: 12), content: "프로젝트 만들기")
     ]
 
     var body: some View {
@@ -61,8 +60,7 @@ struct ListView: View {
                         List(memos) { memo in
                             VStack(alignment: .leading) {
                                 HStack {
-                                    Text(memo.title)
-                                        .font(.system(size: fontSize, weight: .bold))
+
                                     Spacer()
                                     Text(formatDate(memo.day))
                                         .font(.system(size: fontSize - 4))
@@ -70,7 +68,7 @@ struct ListView: View {
                                 }
                                 Text(memo.content)
                                     .font(.system(size: fontSize - 2))
-                                    .foregroundStyle(.gray)
+                                    .foregroundStyle(.primary)
                             }
                             .padding(.vertical, 5)
                         }
@@ -78,8 +76,13 @@ struct ListView: View {
                         .navigationTitle("회고")
 
                     case .statistics:
-                      ChartView(markedDates: Set(memos.map { Calendar.current.startOfDay(for: $0.day) }))
-                            .navigationTitle("통계")
+                      ChartView(
+                             markedDates: Set(
+                                 memos.map { Calendar.current.startOfDay(for: $0.day) }
+                             )
+                         )
+//                      ChartView(markedDates: Set(memos.map { Calendar.current.startOfDay(for: $0.day) }))
+                           .navigationTitle("통계")
 
                     case .settings:
                         SettingView()
@@ -136,3 +139,5 @@ struct ListView: View {
 #Preview {
     ListView()
 }
+
+
