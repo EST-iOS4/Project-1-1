@@ -96,10 +96,8 @@ struct TexteditView: View {
                     }
                 }
                 .overlay(alignment: .topLeading) {
-                    // 입력 중에도 목록이 계속 보이도록 포커스 여부만으로 판단합니다.
                     if isTagInputFocused {
                         tagSuggestionView
-                            // ✅ 테두리가 정확히 붙도록 offset 값을 미세 조정합니다.
                             .offset(y: 35)
                     }
                 }
@@ -134,7 +132,6 @@ struct TexteditView: View {
 
     private var tagSuggestionView: some View {
         ScrollView {
-            // 추천 목록이 비어있을 경우 "결과 없음" 텍스트를 보여줍니다.
             if tagSuggestions.isEmpty {
                 Text("일치하는 태그가 없습니다.")
                     .font(.callout)
@@ -166,11 +163,10 @@ struct TexteditView: View {
                         }
                     }
                 }
-                .padding(.vertical, 5) // 위아래 내부 여백을 주어 스크롤 영역 확보
+                .padding(.vertical, 5)
             }
         }
         .frame(height: 200)
-        // ✅ 배경을 시스템 기본 색상으로 지정하여 완전히 불투명하게 만듭니다.
         .background(Color(uiColor: .systemBackground))
         .contentShape(Rectangle())
         .onTapGesture {}
