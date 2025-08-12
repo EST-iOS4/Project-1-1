@@ -127,12 +127,6 @@ struct TexteditView: View {
         isKeyboardFocused = false
         lastSavedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
-    private func saveAndStay() {
-        saveMemo()
-        isKeyboardFocused = false
-        lastSavedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
 }
 struct TexteditView_Previews: PreviewProvider {
   @State static var sampleMemos = [Memo(day: Date(), tags: "샘플 태그", content: "미리보기 텍스트")]
