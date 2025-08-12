@@ -19,26 +19,31 @@ struct SettingView: View {
     
     var body: some View {
         Form {
-            Section(header: Text("화면 설정")) {
+            Section(header: Text("화면 설정").font(.system(size: 30))) {
                 
                 HStack {
                     Label("이름: ", systemImage: "person.fill")
+                        .font(.system(size: fontSize))
                     TextField("이름을 입력하세요", text: $userName)
                         .textFieldStyle(.roundedBorder)
+                        .font(.system(size: fontSize))
                     }
                     .padding(.top, 5)
                 
                 Toggle(isOn: $isDarkMode) {
                     Label("다크 모드", systemImage: isDarkMode ? "moon.fill" : "sun.max.fill")
+                        .font(.system(size: fontSize))
                 }
                 
                 HStack {
                     Label("글꼴 크기", systemImage: "textformat.size")
-                    Slider(value: $fontSize, in: 10...30, step: 1) {
+                        .font(.system(size: fontSize))
+                    Slider(value: $fontSize, in: 15...30, step: 1) {
                         Text("글꼴 크기")
                     }
                     Text("\(Int(fontSize))pt")
                         .frame(width: 40)
+                        .font(.system(size: fontSize))
                 }
             }
             
