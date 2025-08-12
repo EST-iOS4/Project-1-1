@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct ReviewApp: App {
+  @StateObject private var tagStore = TagStore()
+  
     var body: some Scene {
         WindowGroup {
             ContentView()
+            .environmentObject(tagStore)
         }
     }
 }
