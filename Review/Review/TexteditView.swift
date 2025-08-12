@@ -188,6 +188,7 @@ struct TexteditView: View {
         if let index = tagStore.allTags.firstIndex(of: tag) { return IndexSet(integer: index) }
         return nil
     }
+
     private func saveMemo() {
         let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
         tagStore.addTags(addedTags)
@@ -200,7 +201,6 @@ struct TexteditView: View {
     }
     private func saveAndDismiss() { saveMemo(); dismiss() }
     private func saveMemoAndDismissFocus() { saveMemo(); isTagInputFocused = false }
-}
 
 // MARK: - Reusable TagPill View
 struct TagPill: View {
