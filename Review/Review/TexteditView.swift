@@ -14,7 +14,6 @@ struct TexteditView: View {
     @Binding var memos: [Memo]
     var memoToEdit: Memo?
     
-    @State private var selectedDate: Date
     @State private var reviewText: String
     @State private var lastSavedText: String
     
@@ -28,12 +27,10 @@ struct TexteditView: View {
         self.isEditMode = (memoToEdit != nil)
         
         if let memo = memoToEdit {
-            self._selectedDate = State(initialValue: memo.day)
             let initialText = memo.content
             self._reviewText = State(initialValue: initialText)
             self._lastSavedText = State(initialValue: initialText)
         } else {
-            self._selectedDate = State(initialValue: Date())
             self._reviewText = State(initialValue: "")
             self._lastSavedText = State(initialValue: "")
         }
@@ -43,10 +40,6 @@ struct TexteditView: View {
         let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
         
         VStack {
-            DatePicker("날짜 선택", selection: $selectedDate, displayedComponents: .date)
-                .datePickerStyle(.graphical)
-                .padding()
-            
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $reviewText)
                     .scrollContentBackground(.hidden)
@@ -97,10 +90,10 @@ struct TexteditView: View {
         
         if let memoToEdit = memoToEdit,
            let index = memos.firstIndex(where: { $0.id == memoToEdit.id }) {
-            memos[index].day = selectedDate
+            memos[index].day = Date()
             memos[index].content = trimmedText
         } else {
-            let newMemo = Memo(day: selectedDate, content: trimmedText)
+            let newMemo = Memo(day: Date(), content: trimmedText)
             memos.append(newMemo)
         }
     }
