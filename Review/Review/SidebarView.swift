@@ -20,24 +20,26 @@ struct SidebarView: View {
                 .bold()
                 .padding(.top, 30)
                 .padding(.bottom, 10)
+                .foregroundStyle(.primary)
             
             Divider()
+                .background(Color.primary.opacity(0.3))
             
-            SidebarButton(title: "회고 목록", systemImage: "list.bullet", fontSize: fontSize) {
+            SidebarButton(title: "회고 목록", systemImage: "list.bullet", fontSize: fontSize, isSelected: selectedScreen == .memoList) {
                 selectedScreen = .memoList
                 withAnimation {
                     showMenu = false
                 }
             }
             
-            SidebarButton(title: "통계", systemImage: "chart.bar", fontSize: fontSize) {
+            SidebarButton(title: "통계", systemImage: "chart.bar", fontSize: fontSize, isSelected: selectedScreen == .statistics) {
                 selectedScreen = .statistics
                 withAnimation {
                     showMenu = false
                 }
             }
             
-            SidebarButton(title: "설정", systemImage: "gearshape", fontSize: fontSize) {
+            SidebarButton(title: "설정", systemImage: "gearshape", fontSize: fontSize, isSelected: selectedScreen == .settings) {
                 selectedScreen = .settings
                 withAnimation {
                     showMenu = false
@@ -47,14 +49,15 @@ struct SidebarView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
+        .background(Color(.systemBackground))
     }
 }
-    
     
 struct SidebarButton: View {
     let title: String
     let systemImage: String
     let fontSize: Double
+    let isSelected: Bool
     let action: () -> Void
     
     var body: some View {
@@ -62,15 +65,19 @@ struct SidebarButton: View {
             HStack {
                 Image(systemName: systemImage)
                     .font(.system(size: fontSize))
+                    .foregroundStyle(.primary)
                 Text(title)
                     .font(.system(size: fontSize))
+                    .foregroundStyle(.primary)
             }
             .padding(.vertical, 10)
+            .padding(.horizontal, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 }
-
 #Preview {
     SidebarView(selectedScreen: .constant(.memoList), showMenu: .constant(true))
 }
