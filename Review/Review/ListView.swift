@@ -52,7 +52,7 @@ struct ListView: View {
     ]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack(alignment: .leading) {
                 Group {
                     switch selectedScreen {
