@@ -11,22 +11,36 @@ import SwiftUI
 struct TexteditView: View {
     @Environment(\.dismiss) var dismiss
     
-    @Binding var reviews: [Memo]
+    @Binding var memos: [Memo]
     
-    @State private var selectedDate: Date = Date()
-    @State private var reviewText: String = ""
+    var memoToEdit: Memo?
+    
+    @State private var selectedDate: Date
+    @State private var reviewText: String
+    
+    private var isEditMode: Bool
     
     @FocusState private var isKeyboardFocused: Bool
+
+    init(memos: Binding<[Memo]>, memoToEdit: Memo? = nil) {
+        self._memos = memos
+        self.memoToEdit = memoToEdit
+        self.isEditMode = (memoToEdit != nil)
+        
+        if let memo = memoToEdit {
+            self._selectedDate = State(initialValue: memo.day)
+            self._reviewText = State(initialValue: memo.content)
+        } else {
+            self._selectedDate = State(initialValue: Date())
+            self._reviewText = State(initialValue: "")
+        }
+    }
     
     var body: some View {
         VStack {
-            DatePicker(
-                "날짜 선택",
-                selection: $selectedDate,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.graphical)
-            .padding()
+            DatePicker("날짜 선택", selection: $selectedDate, displayedComponents: .date)
+                .datePickerStyle(.graphical)
+                .padding()
             
             ZStack(alignment: .topLeading) {
                 TextEditor(text: $reviewText)
@@ -38,9 +52,7 @@ struct TexteditView: View {
                     Text("회고를 작성하세요...")
                         .font(.body)
                         .foregroundColor(.gray.opacity(0.7))
-                        .padding()
-                        .padding(.top, 8)
-                        .padding(.leading, 5)
+                        .padding([.top, .leading], 20)
                         .allowsHitTesting(false)
                 }
             }
@@ -52,19 +64,19 @@ struct TexteditView: View {
             
             Spacer()
         }
-        .navigationTitle("회고 작성")
+        .navigationTitle(isEditMode ? "회고 수정" : "회고 작성")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    handleBackAction()
+                    dismiss()
                 } label: {
                     Image(systemName: "chevron.backward")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button("완료") {
-                    saveAndDismissKeyboard()
+                    saveAndDismiss()
                 }
                 .disabled(reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
@@ -77,32 +89,34 @@ struct TexteditView: View {
     
     private func saveMemo() {
         let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !trimmedText.isEmpty {
+        guard !trimmedText.isEmpty else { return }
+        
+        if let memoToEdit = memoToEdit,
+           let index = memos.firstIndex(where: { $0.id == memoToEdit.id }) {
+            memos[index].day = selectedDate
+            memos[index].content = trimmedText
+        } else {
             let newMemo = Memo(day: selectedDate, content: trimmedText)
-            reviews.append(newMemo)
+            memos.append(newMemo)
         }
     }
     
-    private func handleBackAction() {
+    private func saveAndDismiss() {
         saveMemo()
-        dismiss()
-    }
-    
-    private func saveAndDismissKeyboard() {
-        saveMemo()
-        isKeyboardFocused = false
         dismiss()
     }
 }
 
 struct TexteditView_Previews: PreviewProvider {
-    @State static var sampleReviews = [
-        Memo(day: Date(), content: "미리보기 텍스트")
-    ]
+    @State static var sampleMemos = [Memo(day: Date(), content: "미리보기 텍스트")]
     
     static var previews: some View {
         NavigationStack {
-            TexteditView(reviews: $sampleReviews)
+            TexteditView(memos: $sampleMemos)
+                .navigationTitle("생성 모드")
+            
+            TexteditView(memos: $sampleMemos, memoToEdit: sampleMemos[0])
+                .navigationTitle("수정 모드")
         }
     }
 }
