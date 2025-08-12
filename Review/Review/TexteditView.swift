@@ -14,6 +14,7 @@ struct TexteditView: View {
     @Binding var memos: [Memo]
     var memoToEdit: Memo?
     
+
     @State private var tagText: String
     @State private var reviewText: String
     @State private var lastSavedText: String
@@ -28,6 +29,7 @@ struct TexteditView: View {
         self.isEditMode = (memoToEdit != nil)
         
         if let memo = memoToEdit {
+
             self._tagText = State(initialValue: memo.tags)
             let initialText = memo.content
             self._reviewText = State(initialValue: initialText)
@@ -113,10 +115,17 @@ struct TexteditView: View {
     
     private func saveAndDismiss() {
         let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
+
         if !trimmedText.isEmpty && trimmedText != lastSavedText {
             saveMemo()
         }
         dismiss()
+    }
+   
+    private func saveAndStay() {
+        saveMemo()
+        isKeyboardFocused = false
+        lastSavedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     private func saveAndStay() {
