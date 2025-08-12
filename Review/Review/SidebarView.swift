@@ -27,23 +27,17 @@ struct SidebarView: View {
             
             SidebarButton(title: "회고 목록", systemImage: "list.bullet", fontSize: fontSize, isSelected: selectedScreen == .memoList) {
                 selectedScreen = .memoList
-                withAnimation {
-                    showMenu = false
-                }
+                showMenu = false
             }
             
             SidebarButton(title: "통계", systemImage: "chart.bar", fontSize: fontSize, isSelected: selectedScreen == .statistics) {
                 selectedScreen = .statistics
-                withAnimation {
-                    showMenu = false
-                }
+                showMenu = false
             }
             
             SidebarButton(title: "설정", systemImage: "gearshape", fontSize: fontSize, isSelected: selectedScreen == .settings) {
                 selectedScreen = .settings
-                withAnimation {
-                    showMenu = false
-                }
+                showMenu = false
             }
             
             Spacer()
@@ -76,6 +70,7 @@ struct SidebarButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .animation(nil, value: isSelected)
     }
 }
 #Preview {
