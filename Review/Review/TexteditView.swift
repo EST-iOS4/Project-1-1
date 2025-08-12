@@ -49,8 +49,9 @@ struct TexteditView: View {
                 if reviewText.isEmpty {
                     Text("회고를 작성하세요...")
                         .font(.body)
-                        .foregroundColor(.gray.opacity(0.7))
-                        .padding([.top, .leading], 20)
+                        .foregroundStyle(.gray.opacity(0.7))
+                        .padding(.top, 8)
+                        .padding(.leading, 24)
                         .allowsHitTesting(false)
                 }
             }
