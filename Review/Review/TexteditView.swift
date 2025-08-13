@@ -12,7 +12,7 @@ struct TexteditView: View {
   // MARK: - Properties
   
   enum FocusField {
-    case tag, content
+    case title, tag, content
   }
   
   @EnvironmentObject var tagStore: TagStore
@@ -20,6 +20,7 @@ struct TexteditView: View {
   
   @Binding var memos: [Memo]
   
+  @State private var titleText: String = ""
   @State private var addedTags: [String]
   @State private var currentTagInput: String = ""
   @State private var reviewText: String
@@ -28,6 +29,7 @@ struct TexteditView: View {
   @State var memoToEdit: Memo?
   @FocusState private var focusedField: FocusField?
   
+  @State private var savedTitleText: String
   @State private var savedReviewText: String
   @State private var savedAddedTags: [String]
   
@@ -46,17 +48,22 @@ struct TexteditView: View {
   }
   
   private var isContentChanged: Bool {
-    return reviewText != savedReviewText || addedTags != savedAddedTags
-  }
+          return titleText != savedTitleText || reviewText != savedReviewText || addedTags != savedAddedTags
+      }
   
   // MARK: - Initializer
-  
+
   init(memos: Binding<[Memo]>, memoToEdit: Memo? = nil) {
     self._memos = memos
     self._memoToEdit = State(initialValue: memoToEdit)
     self._isEditMode = State(initialValue: (memoToEdit != nil))
     
     if let memo = memoToEdit {
+      // --- 수정 모드일 때 ---
+      // 누락된 변수 초기화
+      self._titleText = State(initialValue: memo.title)
+      self._savedTitleText = State(initialValue: memo.title)
+      
       let initialTags = memo.tags.filter { !$0.isEmpty }
       self._addedTags = State(initialValue: initialTags)
       self._reviewText = State(initialValue: memo.content)
@@ -64,6 +71,11 @@ struct TexteditView: View {
       self._savedAddedTags = State(initialValue: initialTags)
       self._savedReviewText = State(initialValue: memo.content)
     } else {
+      // --- 새 메모 작성 모드일 때 ---
+      // 누락된 변수 초기화
+      self._titleText = State(initialValue: "")
+      self._savedTitleText = State(initialValue: "")
+      
       self._addedTags = State(initialValue: [])
       self._reviewText = State(initialValue: "")
       
@@ -76,6 +88,7 @@ struct TexteditView: View {
 
   var body: some View {
     VStack(spacing: 15) {
+      titleInputSection
       tagInputSection
         .zIndex(1)
       memoContentSection
@@ -106,6 +119,20 @@ struct TexteditView: View {
   }
   
   // MARK: - Child Views
+  
+  private var titleInputSection: some View {
+    TextField("제목", text: $titleText)
+      .font(.system(size: fontSize + 2, weight: .bold))
+      .padding(10)
+      .background(Color(uiColor: .systemGray6))
+      .clipShape(RoundedRectangle(cornerRadius: 12))
+      .overlay(
+        RoundedRectangle(cornerRadius: 12)
+          .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+      )
+      .focused($focusedField, equals: .title)
+      .padding(.horizontal)
+  }
   
   private var tagInputSection: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -239,16 +266,18 @@ struct TexteditView: View {
   }
   
   private func saveMemo() {
+    let trimmedTitle = titleText.trimmingCharacters(in: .whitespacesAndNewlines)
     let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
     tagStore.addTags(addedTags)
     
     if isEditMode, let memoToEditID = memoToEdit?.id, let index = memos.firstIndex(where: { $0.id == memoToEditID }) {
+      memos[index].title = trimmedTitle
       memos[index].content = trimmedText
       memos[index].tags = addedTags
       memos[index].day = Date()
     } else {
-      if !trimmedText.isEmpty || !addedTags.isEmpty {
-        let newMemo = Memo(id: UUID(), day: Date(), tags: addedTags, content: trimmedText)
+      if !trimmedTitle.isEmpty {
+        let newMemo = Memo(id: UUID(), day: Date(), title: trimmedTitle, tags: addedTags, content: trimmedText)
         memos.insert(newMemo, at: 0)
         
         self.memoToEdit = newMemo
@@ -256,6 +285,7 @@ struct TexteditView: View {
       }
     }
     
+    savedTitleText = trimmedTitle
     savedReviewText = trimmedText
     savedAddedTags = addedTags
   }

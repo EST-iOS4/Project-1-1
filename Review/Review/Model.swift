@@ -11,12 +11,14 @@ import Foundation
 struct Memo: Identifiable {
     let id: UUID
     var day: Date
+    var title: String
     var tags: [String]
     var content: String
 
-    init(id: UUID = UUID(), day: Date, tags: [String], content: String) {
+  init(id: UUID = UUID(), day: Date, title: String, tags: [String], content: String) {
         self.id = id
         self.day = day
+        self.title = title
         self.tags = tags
         self.content = content
     }
