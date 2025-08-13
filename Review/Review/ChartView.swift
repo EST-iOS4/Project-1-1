@@ -160,18 +160,21 @@ struct ChartView: View {
           .frame(maxWidth: .infinity, alignment: .leading)
           .font(.system(size: isPad ? 40 : 20))
           .padding(10)
+          .padding(.bottom, 20)
           
         HStack(spacing: isPad ? 60 : 20) {
           Circle()
-            .frame(width: 200, height: 200)
+            .frame(width: 250, height: 250)
             .foregroundColor(.blue)
+            .padding(.trailing, 100)
           
-          VStack {
+          VStack(alignment: .leading) {
             ForEach(Array(viewModel.countTags.keys.enumerated()), id: \.offset) { idx, key in
               HStack{
                 RoundedRectangle(cornerRadius: 4)
                   .fill(Color.red)
                   .frame(width: 20, height: 20)
+                
                 
                 Text("\(key) : \(viewModel.countTags[key] ?? 0) 건")
                   .font(.system(size: isPad ? 40 : 20))
