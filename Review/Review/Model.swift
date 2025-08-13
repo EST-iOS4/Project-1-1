@@ -23,8 +23,8 @@ struct Memo: Identifiable {
 
 func formatDate(_ date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateStyle = .medium
-    formatter.timeStyle = .short
+    formatter.dateFormat = "yyyy/MM/dd a hh:mm"
+    formatter.locale = Locale(identifier: "ko_KR")
     return formatter.string(from: date)
 }
 
