@@ -97,7 +97,6 @@ struct ListView: View {
         Group {
             switch selectedScreen {
             case .memoList:
-                // MARK: - 수정된 부분
                 List {
                     ForEach(memos) { memo in
                         NavigationLink {
@@ -106,7 +105,7 @@ struct ListView: View {
                             MemoRowView(memo: memo, fontSize: fontSize)
                         }
                     }
-                    .onDelete(perform: deleteMemo) // 👈 ForEach에 .onDelete 수정자 추가
+                    .onDelete(perform: deleteMemo)
                 }
                 .listStyle(PlainListStyle())
                 .navigationTitle("회고")
@@ -126,8 +125,6 @@ struct ListView: View {
         }
     }
     
-    // MARK: - 추가된 삭제 함수
-    /// `IndexSet`을 받아 `memos` 배열에서 해당 항목을 삭제합니다.
     private func deleteMemo(at offsets: IndexSet) {
         memos.remove(atOffsets: offsets)
     }
@@ -153,6 +150,7 @@ struct MemoRowView: View {
       Text(memo.content)
         .font(.system(size: fontSize - 2))
         .foregroundStyle(.primary)
+        .lineLimit(1)
       HStack {
         Spacer()
         Text(formatDate(memo.day))
