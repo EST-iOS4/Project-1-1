@@ -9,23 +9,30 @@
 import SwiftUI
 
 struct Memo: Identifiable {
-  let id = UUID()
-  var day: Date
-  var tags: [String]
-  var content: String
+    let id: UUID
+    var day: Date
+    var tags: [String]
+    var content: String
+
+    init(id: UUID = UUID(), day: Date, tags: [String], content: String) {
+        self.id = id
+        self.day = day
+        self.tags = tags
+        self.content = content
+    }
 }
 
 func formatDate(_ date: Date) -> String {
-  let formatter = DateFormatter()
-  formatter.dateStyle = .medium
-  formatter.timeStyle = .short
-  return formatter.string(from: date)
+    let formatter = DateFormatter()
+    formatter.dateStyle = .medium
+    formatter.timeStyle = .short
+    return formatter.string(from: date)
 }
 
 enum Screen {
-  case memoList
-  case statistics
-  case settings
+    case memoList
+    case statistics
+    case settings
 }
 
 struct ListView: View {
@@ -43,6 +50,7 @@ struct ListView: View {
     components.day = day
     return Calendar.current.date(from: components) ?? Date()
   }
+  
   @State private var memos: [Memo] = [
     Memo(
       day: Self.makeDate(year: 2025, month: 7, day: 1),
@@ -71,33 +79,15 @@ struct ListView: View {
   ]
   
   var body: some View {
-    NavigationStack {  //Na
-      ZStack(alignment: .leading) {  //ZS
+    NavigationStack {
+      ZStack(alignment: .leading) {
         mainContentView
-          .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-              if !showMenu {
-                Button(action: {
-                    showMenu.toggle()
-                }) {
-                  Image(systemName: "line.horizontal.3")
-                    .imageScale(.large)
-                }
-              }
-            }
-            ToolbarItem(placement: .navigationBarTrailing) {
-              NavigationLink {
-                TexteditView(memos: $memos)
-              } label: {
-                Image(systemName: "plus")
-              }
-            }
-          }
+        
         if showMenu {
           Color.black.opacity(0.3)
             .ignoresSafeArea()
             .onTapGesture {
-                showMenu = false
+              showMenu = false
             }
           
           SidebarView(selectedScreen: $selectedScreen, showMenu: $showMenu)
@@ -106,9 +96,29 @@ struct ListView: View {
             .offset(x: showMenu ? 0 : -UIScreen.main.bounds.width * 7 / 9)
         }
       }
+      .toolbar {
+        ToolbarItem(placement: .navigationBarLeading) {
+          if !showMenu {
+            Button(action: {
+              showMenu.toggle()
+            }) {
+              Image(systemName: "line.horizontal.3")
+                .imageScale(.large)
+            }
+          }
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+          NavigationLink {
+            TexteditView(memos: $memos)
+          } label: {
+            Image(systemName: "plus")
+          }
+        }
+      }
       .preferredColorScheme(isDarkMode ? .dark : .light)
     }
   }
+  
   @ViewBuilder
   private var mainContentView: some View {
     Group {
@@ -118,29 +128,7 @@ struct ListView: View {
           NavigationLink {
             TexteditView(memos: $memos, memoToEdit: memo)
           } label: {
-            VStack(alignment: .leading, spacing: 8) {
-              if !memo.tags.allSatisfy({ $0.isEmpty }) {
-                HStack {
-                  ForEach(memo.tags.filter { !$0.isEmpty }, id: \.self) { tag in
-                    Text(tag)
-                      .font(.caption).fontWeight(.bold)
-                      .padding(.horizontal, 10).padding(.vertical, 4)
-                      .foregroundStyle(.white)
-                      .background(Capsule().fill(Color.blue))
-                  }
-                }
-              }
-              Text(memo.content)
-                .font(.system(size: fontSize - 2))
-                .foregroundStyle(.primary)
-              HStack {
-                Spacer()
-                Text(formatDate(memo.day))
-                  .font(.system(size: fontSize - 4))
-                  .foregroundStyle(.gray)
-              }
-            }
-            .padding(.vertical, 5)
+            MemoRowView(memo: memo, fontSize: fontSize)
           }
         }
         .listStyle(PlainListStyle())
@@ -152,7 +140,6 @@ struct ListView: View {
             memos.map { Calendar.current.startOfDay(for: $0.day) }
           )
         )
-        //                      ChartView(markedDates: Set(memos.map { Calendar.current.startOfDay(for: $0.day) }))
         .navigationTitle("통계")
         
       case .settings:
@@ -163,7 +150,38 @@ struct ListView: View {
   }
 }
 
+struct MemoRowView: View {
+  let memo: Memo
+  let fontSize: Double
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      if !memo.tags.allSatisfy({ $0.isEmpty }) {
+        HStack {
+          ForEach(memo.tags.filter { !$0.isEmpty }, id: \.self) { tag in
+            Text(tag)
+              .font(.system(size: fontSize - 8, weight: .bold))
+              .padding(.horizontal, 10).padding(.vertical, 4)
+              .foregroundStyle(.white)
+              .background(Capsule().fill(Color.blue))
+          }
+        }
+      }
+      Text(memo.content)
+        .font(.system(size: fontSize - 2))
+        .foregroundStyle(.primary)
+      HStack {
+        Spacer()
+        Text(formatDate(memo.day))
+          .font(.system(size: fontSize - 4))
+          .foregroundStyle(.gray)
+      }
+    }
+    .padding(.vertical, 5)
+  }
+}
+
 #Preview {
-    ListView()
-        .environmentObject(TagStore())
+  ListView()
+    .environmentObject(TagStore())
 }
