@@ -24,6 +24,8 @@ struct TexteditView: View {
   @State private var savedReviewText: String
   @State private var savedAddedTags: [String]
   
+    @AppStorage("fontSize") var fontSize: Double = 16
+    
   private var tagSuggestions: [String] {
     if currentTagInput.isEmpty {
       return tagStore.allTags.filter { !addedTags.contains($0) }
@@ -97,22 +99,23 @@ struct TexteditView: View {
   }
   
   // MARK: - Child Views
-  private var tagInputSection: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      if !addedTags.isEmpty {
-        ScrollView(.horizontal, showsIndicators: false) {
-          HStack {
-            ForEach(addedTags, id: \.self) { tag in
-              TagPill(label: tag) {
-                addedTags.removeAll { $0 == tag }
+    private var tagInputSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+          if !addedTags.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+              HStack {
+                ForEach(addedTags, id: \.self) { tag in
+                    TagPill(label: tag, onDelete: {
+                      addedTags.removeAll { $0 == tag }
+                    }, fontSize: fontSize)
+                }
               }
             }
-          }
-        }
         .frame(maxHeight: 32)
       }
       
       TextField("태그 추가 (쉼표 또는 Return으로 입력)", text: $currentTagInput)
+            .font(.system(size: fontSize))
         .textFieldStyle(.roundedBorder)
         .focused($isTagInputFocused)
         .onSubmit(addTagFromSubmit)
@@ -131,6 +134,7 @@ struct TexteditView: View {
   
   private var memoContentSection: some View {
     TextEditor(text: $reviewText)
+          .font(.system(size: fontSize))
       .font(.body)
       .scrollContentBackground(.hidden)
       .padding(8)
@@ -141,6 +145,7 @@ struct TexteditView: View {
       .overlay(alignment: .topLeading) {
         if reviewText.isEmpty {
           Text("회고를 작성하세요...")
+                .font(.system(size: fontSize))
             .foregroundColor(.gray.opacity(0.7))
             .padding(16)
             .allowsHitTesting(false)
@@ -153,6 +158,7 @@ struct TexteditView: View {
     ScrollView {
       if tagSuggestions.isEmpty {
         Text("일치하는 태그가 없습니다.")
+              .font(.system(size: fontSize))
           .font(.callout)
           .foregroundColor(.secondary)
           .frame(maxWidth: .infinity, alignment: .center)
@@ -161,7 +167,9 @@ struct TexteditView: View {
         LazyVStack(alignment: .leading, spacing: 0) {
           ForEach(tagSuggestions, id: \.self) { suggestion in
             HStack {
-              Text(suggestion).padding(.vertical, 4)
+              Text(suggestion)
+                    .font(.system(size: fontSize))
+                    .padding(.vertical, 4)
               Spacer()
               Image(systemName: "xmark.circle.fill")
                 .foregroundStyle(.gray.opacity(0.4))
@@ -247,12 +255,19 @@ struct TexteditView: View {
 struct TagPill: View {
   let label: String
   let onDelete: () -> Void
+  let fontSize: Double
+  
   var body: some View {
     HStack(spacing: 4) {
-      Text(label); Image(systemName: "xmark").font(.caption.weight(.bold))
+      Text(label)
+        .font(.system(size: fontSize * 0.8))
+      Image(systemName: "xmark")
+        .font(.system(size: fontSize * 0.6).weight(.bold))
     }
-    .font(.caption).padding(.horizontal, 10).padding(.vertical, 5)
-    .background(Capsule().fill(Color.accentColor)).foregroundStyle(.white)
+    .padding(.horizontal, 10)
+    .padding(.vertical, 5)
+    .background(Capsule().fill(Color.accentColor))
+    .foregroundStyle(.white)
     .onTapGesture(perform: onDelete)
   }
 }
