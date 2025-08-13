@@ -20,8 +20,7 @@ extension Date {
 }
 
 struct ListView: View {
-    // MARK: - Properties
-    
+
     @EnvironmentObject var tagStore: TagStore
     @State private var selectedTab: Screen = .memoList
     
@@ -33,9 +32,7 @@ struct ListView: View {
         Memo(day: Calendar.current.date(byAdding: .day, value: -6, to: Date())!, title: "장보기 목록", tags: ["과일"], content: "수박, 복숭아, 양파, 아보카도"),
         Memo(day: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, title: "신규 프로젝트 구상", tags: ["할 일"], content: "프로젝트 UI 생각하기")
     ]
-    
-    // MARK: - Computed Properties
-    
+ 
   var memoDates: Set<Date> {
     let calendar = Calendar.current
     return Set(memos.map { calendar.startOfDay(for: $0.day) })
@@ -49,9 +46,7 @@ struct ListView: View {
     }
     return counts
   }
-    
-    // MARK: - Body
-    
+
   var body: some View {
     TabView(selection: $selectedTab) {
       memoListTab
@@ -74,9 +69,7 @@ struct ListView: View {
     }
     .preferredColorScheme(isDarkMode ? .dark : .light)
   }
-    
-    // MARK: - Tab Views
-    
+
   private var memoListTab: some View {
     NavigationStack {
       List {
@@ -118,15 +111,12 @@ struct ListView: View {
         .navigationTitle("설정")
     }
   }
-    
-    // MARK: - Functions
-    
+
     private func deleteMemo(at offsets: IndexSet) {
         memos.remove(atOffsets: offsets)
     }
 }
 
-// MARK: - MemoRowView
 struct MemoRowView: View {
   let memo: Memo
   let fontSize: Double
@@ -137,7 +127,7 @@ struct MemoRowView: View {
         HStack {
           ForEach(memo.tags.filter { !$0.isEmpty }, id: \.self) { tag in
             Text(tag)
-              .font(.system(size: fontSize - 6, weight: .semibold))
+              .font(.system(size: fontSize - 7, weight: .semibold))
               .padding(.horizontal, 10)
               .padding(.vertical, 4)
               .foregroundStyle(.white)
@@ -146,13 +136,13 @@ struct MemoRowView: View {
         }
       }
       Text(memo.title)
-        .font(.system(size: fontSize - 2))
+        .font(.system(size: fontSize + 2 ))
         .fontWeight(.bold)
         .foregroundStyle(.primary)
         .lineLimit(1)
       
       Text(memo.content)
-        .font(.system(size: fontSize - 8))
+        .font(.system(size: fontSize - 5))
 //        .fontWeight(.semibold)
         .foregroundStyle(.primary)
         .lineLimit(1)
@@ -160,7 +150,7 @@ struct MemoRowView: View {
       HStack {
         Spacer()
         Text(memo.day.toYYYYMMDD())
-          .font(.system(size: fontSize - 8))
+          .font(.system(size: fontSize - 7))
           .foregroundStyle(.gray)
       }
     }
@@ -168,8 +158,6 @@ struct MemoRowView: View {
   }
 }
 
-
-// MARK: - Preview
 #Preview {
     ListView()
         .environmentObject(TagStore())
