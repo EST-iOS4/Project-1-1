@@ -97,7 +97,7 @@ struct ListView: View {
   
   private var statisticsTab: some View {
     NavigationStack {
-      Text("통계 뷰")
+      ChartView(markedDates: memoDates, countTags: memoTags)
         .navigationTitle("통계")
     }
   }
