@@ -7,6 +7,18 @@
 
 import SwiftUI
 
+extension Date {
+    static let yyyyMMddFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyy. MM. dd"
+        return formatter
+    }()
+
+    func toYYYYMMDD() -> String {
+        Date.yyyyMMddFormatter.string(from: self)
+    }
+}
+
 struct ListView: View {
     
     @EnvironmentObject var tagStore: TagStore
@@ -150,7 +162,7 @@ struct MemoRowView: View {
                 .foregroundStyle(.primary)
             HStack {
                 Spacer()
-                Text(formatDate(memo.day))
+              Text(memo.day.toYYYYMMDD())
                     .font(.system(size: fontSize - 7))
                     .foregroundStyle(.gray)
             }
