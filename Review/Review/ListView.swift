@@ -24,23 +24,23 @@ struct ListView: View {
       ),
       Memo(
         day: Calendar.current.date(byAdding: .day, value: -6, to: Date())!,
-        tags: ["과일", ""], content: "수박, 복숭아, 양파, 아보카도"
+        tags: ["과일"], content: "수박, 복숭아, 양파, 아보카도"
       ),
       Memo(
         day: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
-        tags: ["할 일", ""], content: "프로젝트 UI 생각하기"
+        tags: ["할 일"], content: "프로젝트 UI 생각하기"
       ),
       Memo(
         day: Calendar.current.date(byAdding: .day, value: -9, to: Date())!,
-        tags: ["할 일", ""], content: "SwiftUI 공부하기"
+        tags: ["할 일"], content: "SwiftUI 공부하기"
       ),
       Memo(
         day: Calendar.current.date(byAdding: .day, value: -16, to: Date())!,
-        tags: ["할 일", ""], content: "백준 알고리즘 풀기"
+        tags: ["할 일"], content: "백준 알고리즘 풀기"
       ),
       Memo(
         day: Calendar.current.date(byAdding: .day, value: -18, to: Date())!,
-        tags: ["할 일", ""], content: "프로젝트 만들기"
+        tags: ["할 일"], content: "프로젝트 만들기"
       ),
     ]
 
@@ -104,7 +104,6 @@ struct ListView: View {
     Group {
       switch selectedScreen {
       case .memoList:
-        // MARK: - 수정된 부분
         List {
           ForEach(memos) { memo in
             NavigationLink {
@@ -113,7 +112,7 @@ struct ListView: View {
               MemoRowView(memo: memo, fontSize: fontSize)
             }
           }
-          .onDelete(perform: deleteMemo)  // 👈 ForEach에 .onDelete 수정자 추가
+          .onDelete(perform: deleteMemo)
         }
         .listStyle(PlainListStyle())
         .navigationTitle("회고")
@@ -132,8 +131,6 @@ struct ListView: View {
     }
   }
 
-  // MARK: - 추가된 삭제 함수
-  /// `IndexSet`을 받아 `memos` 배열에서 해당 항목을 삭제합니다.
   private func deleteMemo(at offsets: IndexSet) {
     memos.remove(atOffsets: offsets)
   }
@@ -165,7 +162,7 @@ struct MemoRowView: View {
         Text(formatDate(memo.day))
           .font(.system(size: fontSize - 4))
           .foregroundStyle(.gray)
-
+          .lineLimit(1)
       }
     }
     .padding(.vertical, 5)
