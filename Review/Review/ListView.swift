@@ -29,12 +29,9 @@ struct ListView: View {
     @AppStorage("fontSize") var fontSize: Double = 20
     
     @State private var memos: [Memo] = [
-        Memo(day: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, tags: ["독서", "UI/UX"], content: "책 이름 : UI/UX 시작하기"),
-        Memo(day: Calendar.current.date(byAdding: .day, value: -6, to: Date())!, tags: ["과일"], content: "수박, 복숭아, 양파, 아보카도"),
-        Memo(day: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, tags: ["할 일"], content: "프로젝트 UI 생각하기"),
-        Memo(day: Calendar.current.date(byAdding: .day, value: -9, to: Date())!, tags: ["할 일"], content: "SwiftUI 공부하기"),
-        Memo(day: Calendar.current.date(byAdding: .day, value: -16, to: Date())!, tags: ["할 일"], content: "백준 알고리즘 풀기"),
-        Memo(day: Calendar.current.date(byAdding: .day, value: -18, to: Date())!, tags: ["할 일"], content: "프로젝트 만들기")
+      Memo(day: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, title: "UI/UX 디자인 원칙", tags: ["독서", "UI/UX"], content: "책 이름 : UI/UX 시작하기"),
+        Memo(day: Calendar.current.date(byAdding: .day, value: -6, to: Date())!, title: "장보기 목록", tags: ["과일"], content: "수박, 복숭아, 양파, 아보카도"),
+        Memo(day: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, title: "신규 프로젝트 구상", tags: ["할 일"], content: "프로젝트 UI 생각하기")
     ]
     
     // MARK: - Computed Properties
@@ -135,12 +132,12 @@ struct MemoRowView: View {
   let fontSize: Double
   
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: 4) {
       if !memo.tags.allSatisfy({ $0.isEmpty }) {
         HStack {
           ForEach(memo.tags.filter { !$0.isEmpty }, id: \.self) { tag in
             Text(tag)
-              .font(.system(size: fontSize - 7, weight: .semibold))
+              .font(.system(size: fontSize - 6, weight: .semibold))
               .padding(.horizontal, 10)
               .padding(.vertical, 4)
               .foregroundStyle(.white)
@@ -148,17 +145,22 @@ struct MemoRowView: View {
           }
         }
       }
+      Text(memo.title)
+        .font(.system(size: fontSize - 2))
+        .fontWeight(.bold)
+        .foregroundStyle(.primary)
+        .lineLimit(1)
       
       Text(memo.content)
-        .font(.system(size: fontSize - 2))
-        .fontWeight(.semibold)
+        .font(.system(size: fontSize - 8))
+//        .fontWeight(.semibold)
         .foregroundStyle(.primary)
         .lineLimit(1)
       
       HStack {
         Spacer()
         Text(memo.day.toYYYYMMDD())
-          .font(.system(size: fontSize - 7))
+          .font(.system(size: fontSize - 8))
           .foregroundStyle(.gray)
       }
     }
