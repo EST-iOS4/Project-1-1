@@ -14,13 +14,12 @@ struct TexteditView: View {
   @Environment(\.dismiss) var dismiss
   
   @Binding var memos: [Memo]
-  var memoToEdit: Memo?
   
+  @State var memoToEdit: Memo?
   @State private var addedTags: [String] = []
   @State private var currentTagInput: String = ""
   @State private var reviewText: String
-  
-  private var isEditMode: Bool
+  @State private var isEditMode: Bool
   @FocusState private var isTagInputFocused: Bool
   
   private var tagSuggestions: [String] {
@@ -37,7 +36,7 @@ struct TexteditView: View {
   init(memos: Binding<[Memo]>, memoToEdit: Memo? = nil) {
     self._memos = memos
     self.memoToEdit = memoToEdit
-    self.isEditMode = (memoToEdit != nil)
+    self._isEditMode = State(initialValue: (memoToEdit != nil))
     
     if let memo = memoToEdit {
       self._addedTags = State(initialValue: memo.tags.filter { !$0.isEmpty })
@@ -192,26 +191,36 @@ struct TexteditView: View {
   private func saveMemo() {
     let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
     tagStore.addTags(addedTags)
-    if let memoToEdit = memoToEdit, let index = memos.firstIndex(where: { $0.id == memoToEdit.id }) {
-      memos[index].day = Date(); memos[index].tags = addedTags; memos[index].content = trimmedText
-    } else if !trimmedText.isEmpty || !addedTags.isEmpty {
-      let newMemo = Memo(day: Date(), tags: addedTags, content: trimmedText)
-      memos.append(newMemo)
+    
+    if isEditMode {
+      if let memoToEdit = memoToEdit, let index = memos.firstIndex(where: { $0.id == memoToEdit.id }) {
+        memos[index].content = trimmedText
+        memos[index].tags = addedTags
+      }
+    } else {
+      if !trimmedText.isEmpty || !addedTags.isEmpty {
+        let newMemo = Memo(day: Date(), tags: addedTags, content: trimmedText)
+        memos.append(newMemo)
+        self.memoToEdit = newMemo
+        self.isEditMode = true
+      }
     }
   }
+  
   private func saveAndDismiss() { saveMemo(); dismiss() }
   private func saveMemoAndDismissFocus() { saveMemo(); isTagInputFocused = false }
 }
+
 // MARK: - Reusable TagPill View
 struct TagPill: View {
-    let label: String
-    let onDelete: () -> Void
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(label); Image(systemName: "xmark").font(.caption.weight(.bold))
-        }
-        .font(.caption).padding(.horizontal, 10).padding(.vertical, 5)
-        .background(Capsule().fill(Color.accentColor)).foregroundStyle(.white)
-        .onTapGesture(perform: onDelete)
+  let label: String
+  let onDelete: () -> Void
+  var body: some View {
+    HStack(spacing: 4) {
+      Text(label); Image(systemName: "xmark").font(.caption.weight(.bold))
     }
+    .font(.caption).padding(.horizontal, 10).padding(.vertical, 5)
+    .background(Capsule().fill(Color.accentColor)).foregroundStyle(.white)
+    .onTapGesture(perform: onDelete)
+  }
 }
