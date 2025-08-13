@@ -13,7 +13,7 @@ struct ReviewApp: App {
   
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ListView()
             .environmentObject(tagStore)
         }
     }
