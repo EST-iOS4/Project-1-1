@@ -127,7 +127,13 @@ struct TexteditView: View {
       
       TextField("태그 추가 (쉼표 또는 Return으로 입력)", text: $currentTagInput)
         .font(.system(size: fontSize))
-        .textFieldStyle(.roundedBorder)
+        .padding(10)
+        .background(Color(uiColor: .systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+          RoundedRectangle(cornerRadius: 12)
+            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+        )
         .focused($focusedField, equals: .tag)
         .onSubmit(addTagFromSubmit)
         .onChange(of: currentTagInput) { _, newValue in
@@ -150,6 +156,8 @@ struct TexteditView: View {
       .frame(minHeight: 300)
       .focused($focusedField, equals: .content)
       .padding(8)
+      .background(Color(uiColor: .systemGray6))
+      .clipShape(RoundedRectangle(cornerRadius: 12))
       .overlay(
         RoundedRectangle(cornerRadius: 12)
           .stroke(Color.gray.opacity(0.5), lineWidth: 1)
