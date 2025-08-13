@@ -24,7 +24,6 @@ struct ListView: View {
     @EnvironmentObject var tagStore: TagStore
     @State private var selectedTab: Screen = .memoList
     
-    @AppStorage("isDarkMode") var isDarkMode = false
     @AppStorage("fontSize") var fontSize: Double = 20
     
     @State private var memos: [Memo] = [
@@ -67,7 +66,6 @@ struct ListView: View {
         }
         .tag(Screen.settings)
     }
-    .preferredColorScheme(isDarkMode ? .dark : .light)
   }
 
   private var memoListTab: some View {
