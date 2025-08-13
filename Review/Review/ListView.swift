@@ -36,39 +36,46 @@ struct ListView: View {
   @AppStorage("isDarkMode") var isDarkMode = false
   @AppStorage("fontSize") var fontSize: Double = 16
   
-  static func makeDate(year: Int, month: Int, day: Int) -> Date {
-    var components = DateComponents()
-    components.year = year
-    components.month = month
-    components.day = day
-    return Calendar.current.date(from: components) ?? Date()
-  }
   @State private var memos: [Memo] = [
     Memo(
-      day: Self.makeDate(year: 2025, month: 7, day: 1),
+      day: Calendar.current.date(byAdding: .day, value: -1, to: Date())!,
       tags: ["독서", "UI/UX"], content: "책 이름 : UI/UX 시작하기"
     ),
     Memo(
-      day: Self.makeDate(year: 2025, month: 7, day: 12),
+      day: Calendar.current.date(byAdding: .day, value: -6, to: Date())!,
       tags: ["과일", ""], content: "수박, 복숭아, 양파, 아보카도"
     ),
     Memo(
-      day: Self.makeDate(year: 2025, month: 7, day: 31),
+      day: Calendar.current.date(byAdding: .day, value: -7, to: Date())!,
       tags: ["할 일", ""], content: "프로젝트 UI 생각하기"
     ),
     Memo(
-      day: Self.makeDate(year: 2025, month: 8, day: 5),
+      day: Calendar.current.date(byAdding: .day, value: -9, to: Date())!,
       tags: ["할 일", ""], content: "SwiftUI 공부하기"
     ),
     Memo(
-      day: Self.makeDate(year: 2025, month: 8, day: 10),
+      day: Calendar.current.date(byAdding: .day, value: -16, to: Date())!,
       tags: ["할 일", ""], content: "백준 알고리즘 풀기"
     ),
     Memo(
-      day: Self.makeDate(year: 2025, month: 8, day: 12),
+      day: Calendar.current.date(byAdding: .day, value: -18, to: Date())!,
       tags: ["할 일", ""], content: "프로젝트 만들기"
     ),
   ]
+  
+  var memoDates: Set<Date> {
+    let calender = Calendar.current
+    return Set(memos.map{ calender.startOfDay(for: $0.day)})
+  }
+  
+  var memoTags: [String: Int] {
+    let tags = memos.flatMap { $0.tags}.filter { !$0.isEmpty }
+    var counts: [String: Int] = [:]
+    for tag in tags {
+      counts[tag, default: 0] += 1
+    }
+    return counts
+  }
   
   var body: some View {
     NavigationStack {  //Na
@@ -148,11 +155,9 @@ struct ListView: View {
         
       case .statistics:
         ChartView(
-          markedDates: Set(
-            memos.map { Calendar.current.startOfDay(for: $0.day) }
+          markedDates: memoDates,
+          countTags: memoTags
           )
-        )
-        //                      ChartView(markedDates: Set(memos.map { Calendar.current.startOfDay(for: $0.day) }))
         .navigationTitle("통계")
         
       case .settings:

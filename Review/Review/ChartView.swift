@@ -11,13 +11,15 @@ class ChartViewModel: ObservableObject {
   @AppStorage("isDarkMode") var isDarkMode = false
   
   let markedDates: Set<Date>
+  let countTags: [String: Int]
   
   @Published private var currentMonth: Date = Date()
   
   private let calendar: Calendar = .current
   
-  init(markedDates: Set<Date>) {
+  init(markedDates: Set<Date>, countTags: [String: Int] = [:] ) {
     self.markedDates = markedDates
+    self.countTags = countTags
   }
   
   // 달 년도 표시
@@ -80,9 +82,10 @@ struct ChartView: View {
   @StateObject private var viewModel: ChartViewModel
   @State private var selectedDate: Date? = nil
   @State private var showSheet = false
+
   
-  init(markedDates: Set<Date>) {
-    _viewModel = StateObject(wrappedValue: ChartViewModel(markedDates: markedDates))
+  init(markedDates: Set<Date>, countTags: [String: Int]) {
+    _viewModel = StateObject(wrappedValue: ChartViewModel(markedDates: markedDates, countTags: countTags))
   }
 
   var body: some View {
@@ -209,21 +212,6 @@ struct DayCell: View {
 }
 
 #Preview {
-  ChartView(
-    markedDates: Set([
-      Calendar.current.startOfDay(for: Date()),
-      Calendar.current.startOfDay(
-        for: Calendar.current.date(byAdding: .day, value: -3, to: Date())!
-      ),
-      Calendar.current.startOfDay(
-        for: Calendar.current.date(byAdding: .day, value: -6, to: Date())!
-      ),
-      Calendar.current.startOfDay(
-        for: Calendar.current.date(byAdding: .day, value: -13, to: Date())!
-      ),
-      Calendar.current.startOfDay(
-        for: Calendar.current.date(byAdding: .day, value: -15, to: Date())!
-      ),
-    ])
-  )
+  ChartView(markedDates: Set<Date>(),
+            countTags: [:])
 }
