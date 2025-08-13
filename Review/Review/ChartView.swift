@@ -13,6 +13,7 @@ class ChartViewModel: ObservableObject {
   let markedDates: Set<Date>
   
   @Published private var currentMonth: Date = Date()
+  
   private let calendar: Calendar = .current
   
   init(markedDates: Set<Date>) {
@@ -77,6 +78,8 @@ class ChartViewModel: ObservableObject {
 struct ChartView: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
   @StateObject private var viewModel: ChartViewModel
+  @State private var selectedDate: Date? = nil
+  @State private var showSheet = false
   
   init(markedDates: Set<Date>) {
     _viewModel = StateObject(wrappedValue: ChartViewModel(markedDates: markedDates))
@@ -137,10 +140,10 @@ struct ChartView: View {
                 isMarked: viewModel.isDateMarked(date),
                 size: isPad ? 80 : 40
               )
-              //            .onTapGesture {
-              //                   showFullJandiblock = true
-              //         Text("\(calendar.component(.day, from: date))")
-              //           .frame(width: 40, height: 40)
+              .onTapGesture {
+                selectedDate = date
+                showSheet = true
+              }
             } else {
               Color.clear.frame(height: isPad ? 60 : 40)
             }
@@ -155,11 +158,34 @@ struct ChartView: View {
           .font(.system(size: isPad ? 40 : 20))
           .padding(10)
           
+        HStack(spacing: isPad ? 60 : 20) {
+          Circle()
+            .frame(width: 200, height: 200)
+            .foregroundColor(.blue)
+          
+          VStack {
+            ForEach(0..<4, id: \.self) { index in
+              HStack{
+                RoundedRectangle(cornerRadius: 4)
+                  .foregroundColor(.red)
+                  .frame(width: 20, height: 20)
+                
+                  Text("빨강 : \(Int(index)) 건")
+                    .font(.system(size: isPad ? 40 : 20))
+
+              }
+            }
+          }
+          .padding(.leading, 10)
+        }
+        .frame(height: 200)
       }
       .padding(.horizontal)
-      
     }
     .preferredColorScheme(viewModel.isDarkMode ? .dark : .light)
+    .sheet(isPresented: $showSheet) {
+      
+    }
   }
 }
 
