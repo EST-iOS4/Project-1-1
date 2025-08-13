@@ -9,19 +9,19 @@ import SwiftUI
 
 class ChartViewModel: ObservableObject {
   @AppStorage("isDarkMode") var isDarkMode = false
-  
+
   let markedDates: Set<Date>
   let countTags: [String: Int]
-  
+
   @Published private var currentMonth: Date = Date()
-  
+
   private let calendar: Calendar = .current
-  
-  init(markedDates: Set<Date>, countTags: [String: Int] = [:] ) {
+
+  init(markedDates: Set<Date>, countTags: [String: Int] = [:]) {
     self.markedDates = markedDates
     self.countTags = countTags
   }
-  
+
   // 달 년도 표시
   var monthTitle: String {
     let formatter = DateFormatter()
@@ -29,12 +29,12 @@ class ChartViewModel: ObservableObject {
     formatter.dateFormat = "yyyy년   M월"
     return formatter.string(from: currentMonth)
   }
-  
+
   // 요일 표시
   var dayWeeks: [String] {
     ["일", "월", "화", "수", "목", "금", "토"]
   }
-  
+
   //
   var arrayMonthDays: [Date?] {
     guard let range = calendar.range(of: .day, in: .month, for: currentMonth),
@@ -60,22 +60,25 @@ class ChartViewModel: ObservableObject {
 
     return days
   }
-  
+
   // 달 바꾸기
   func changeMonth(by value: Int) {
-    if let newMonth = calendar.date(byAdding: .month, value: value, to: currentMonth) {
+    if let newMonth = calendar.date(
+      byAdding: .month,
+      value: value,
+      to: currentMonth
+    ) {
       currentMonth = newMonth
     }
   }
-  
+
   // 작성한 날짜
   func isDateMarked(_ date: Date?) -> Bool {
     guard let date else { return false }
     return markedDates.contains(calendar.startOfDay(for: date))
   }
-  
-}
 
+}
 
 struct ChartView: View {
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -83,39 +86,64 @@ struct ChartView: View {
   @State private var selectedDate: Date? = nil
   @State private var showSheet = false
 
-  
   init(markedDates: Set<Date>, countTags: [String: Int]) {
-    _viewModel = StateObject(wrappedValue: ChartViewModel(markedDates: markedDates, countTags: countTags))
+    _viewModel = StateObject(
+      wrappedValue: ChartViewModel(
+        markedDates: markedDates,
+        countTags: countTags
+      )
+    )
   }
 
   var body: some View {
     let isPad = horizontalSizeClass == .regular
-    
+
     ScrollView {
       VStack {
         Divider()
-          .background(viewModel.isDarkMode ? Color.white.opacity(1) : Color.gray)
-        
-        Text("활동 내역")
-       .frame(maxWidth: .infinity, alignment: .leading)
-          .font(.system(size: isPad ? 40 : 20))
-          .padding(10)
-         
+          .background(
+            viewModel.isDarkMode ? Color.white.opacity(1) : Color.gray
+          )
+
+        HStack {
+          Text("회고 기록")
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .font(.system(size: isPad ? 55 : 25, weight: .bold))
+            .padding(10)
+
+          VStack {
+            Text("PHx")
+              .font(.system(size: isPad ? 30 : 15, weight: .semibold))
+              .foregroundColor(.white)
+              .padding(.horizontal, 16)
+              .padding(.vertical, 8)
+              .background(Capsule().fill(Color.blue))
+
+            Text("Today")
+              .font(.system(size: isPad ? 30 : 15, weight: .semibold))
+              .foregroundColor(.white)
+              .padding(.horizontal, 16)
+              .padding(.vertical, 8)
+              .background(Capsule().fill(Color.blue))
+          }
+        }
+
         HStack(spacing: isPad ? 60 : 20) {
-          Button { viewModel.changeMonth(by: -1)
+          Button {
+            viewModel.changeMonth(by: -1)
           } label: {
             Image(systemName: "chevron.left")
               .bold()
               .font(.system(size: isPad ? 50 : 20))
           }
-          
-          
+
           Text(viewModel.monthTitle)
             .font(.system(size: isPad ? 50 : 20))
             .bold()
-          
-          
-          Button{ viewModel.changeMonth(by: 1) } label: {
+
+          Button {
+            viewModel.changeMonth(by: 1)
+          } label: {
             Image(systemName: "chevron.right")
               .bold()
               .font(.system(size: isPad ? 50 : 20))
@@ -136,17 +164,19 @@ struct ChartView: View {
 
         // 달력 날짜 생성
         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-          ForEach(Array(viewModel.arrayMonthDays.enumerated()), id: \.offset) { index, date in
+          ForEach(Array(viewModel.arrayMonthDays.enumerated()), id: \.offset) {
+            index,
+            date in
             if let date {
               DayCell(
                 date: date,
                 isMarked: viewModel.isDateMarked(date),
                 size: isPad ? 80 : 40
               )
-              .onTapGesture {
-                selectedDate = date
-                showSheet = true
-              }
+              //              .onTapGesture {
+              //누르면 화면                selectedDate = date
+              //                showSheet = true
+              //              }
             } else {
               Color.clear.frame(height: isPad ? 60 : 40)
             }
@@ -154,28 +184,30 @@ struct ChartView: View {
         }
         .padding(.bottom, 20)
         Divider()
-          .background(viewModel.isDarkMode ? Color.white.opacity(1) : Color.gray)
+          .background(
+            viewModel.isDarkMode ? Color.white.opacity(1) : Color.gray
+          )
 
         Text("키워드 통계")
           .frame(maxWidth: .infinity, alignment: .leading)
-          .font(.system(size: isPad ? 40 : 20))
+          .font(.system(size: isPad ? 55 : 25, weight: .bold))
           .padding(10)
           .padding(.bottom, 10)
-          
+
         HStack(spacing: isPad ? 60 : 20) {
           Circle()
             .frame(width: 150, height: 150)
             .foregroundColor(.blue)
             .padding(.trailing, 10)
-          
+
           VStack(alignment: .leading) {
-            ForEach(Array(viewModel.countTags.keys.enumerated()), id: \.offset) { idx, key in
-              HStack{
+            ForEach(Array(viewModel.countTags.keys.enumerated()), id: \.offset)
+            { idx, key in
+              HStack {
                 RoundedRectangle(cornerRadius: 4)
                   .fill(Color.red)
                   .frame(width: 20, height: 20)
-                
-                
+
                 Text("\(key) : \(viewModel.countTags[key] ?? 0) 건")
                   .font(.system(size: isPad ? 40 : 20))
               }
@@ -189,7 +221,7 @@ struct ChartView: View {
     }
     .preferredColorScheme(viewModel.isDarkMode ? .dark : .light)
     .sheet(isPresented: $showSheet) {
-      
+
     }
   }
 }
@@ -217,41 +249,45 @@ struct FullYearCell: View {
   let markedDates: Set<Data>
   @State var baseYear: Int
   @Environment(\.horizontalSizeClass) var horizontalSizeClass
-  
+
   private let calendar: Calendar = .current
   private let dayWeek = ["일", "월", "화", "수", "목", "금", "토"]
-  
+
   var body: some View {
     let isPad = horizontalSizeClass == .regular
     let squareSize: CFloat = isPad ? 28 : 14
     let squareSpacing: CFloat = isPad ? 6 : 4
     let weekdayLabelWidth: CGFloat = isPad ? 40 : 20
-    
+
     VStack(alignment: .leading) {
       HStack {
         Spacer()
-        Button { baseYear -= 1} label: {
+        Button {
+          baseYear -= 1
+        } label: {
           Image(systemName: "chevron.left").bold()
         }
         Text("\(String(baseYear))년")
           .font(isPad ? .title : .title3)
           .bold()
-        Button { baseYear += 1} label: {
+        Button {
+          baseYear += 1
+        } label: {
           Image(systemName: "chevron.left").bold()
         }
         Spacer()
-        
 
       }
       .padding(.horizontal)
       .padding(.top, 8)
-      
+
     }
   }
 }
 
-
 #Preview {
-  ChartView(markedDates: Set<Date>(),
-            countTags: [:])
+  ChartView(
+    markedDates: Set<Date>(),
+    countTags: [:]
+  )
 }
