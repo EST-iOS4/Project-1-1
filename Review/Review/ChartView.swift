@@ -167,15 +167,14 @@ struct ChartView: View {
             .foregroundColor(.blue)
           
           VStack {
-            ForEach(0..<4, id: \.self) { index in
+            ForEach(Array(viewModel.countTags.keys.enumerated()), id: \.offset) { idx, key in
               HStack{
                 RoundedRectangle(cornerRadius: 4)
-                  .foregroundColor(.red)
+                  .fill(Color.red)
                   .frame(width: 20, height: 20)
                 
-                  Text("빨강 : \(Int(index)) 건")
-                    .font(.system(size: isPad ? 40 : 20))
-
+                Text("\(key) : \(viewModel.countTags[key] ?? 0) 건")
+                  .font(.system(size: isPad ? 40 : 20))
               }
             }
           }
