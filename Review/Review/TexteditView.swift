@@ -90,7 +90,7 @@ struct TexteditView: View {
         Button { saveAndDismiss() } label: { Image(systemName: "chevron.backward") }
       }
       ToolbarItem(placement: .navigationBarTrailing) {
-        Button("완료") { saveMemoAndDismissFocus() }
+        Button("저장") { saveMemoAndDismissFocus() }
           .disabled((reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && addedTags.isEmpty) || !isContentChanged)
       }
     }
