@@ -16,11 +16,13 @@ struct TexteditView: View {
   @Binding var memos: [Memo]
   
   @State var memoToEdit: Memo?
-  @State private var addedTags: [String] = []
+  @State private var addedTags: [String]
   @State private var currentTagInput: String = ""
   @State private var reviewText: String
   @State private var isEditMode: Bool
   @FocusState private var isTagInputFocused: Bool
+  @State private var savedReviewText: String
+  @State private var savedAddedTags: [String]
   
   private var tagSuggestions: [String] {
     if currentTagInput.isEmpty {
@@ -32,29 +34,53 @@ struct TexteditView: View {
     }
   }
   
+  private var isContentChanged: Bool {
+    return reviewText != savedReviewText || addedTags != savedAddedTags
+  }
+  
   // MARK: - Initializer
   init(memos: Binding<[Memo]>, memoToEdit: Memo? = nil) {
     self._memos = memos
-    self.memoToEdit = memoToEdit
+    self._memoToEdit = State(initialValue: memoToEdit)
     self._isEditMode = State(initialValue: (memoToEdit != nil))
     
     if let memo = memoToEdit {
-      self._addedTags = State(initialValue: memo.tags.filter { !$0.isEmpty })
+      let initialTags = memo.tags.filter { !$0.isEmpty }
+      self._addedTags = State(initialValue: initialTags)
       self._reviewText = State(initialValue: memo.content)
+      
+      self._savedAddedTags = State(initialValue: initialTags)
+      self._savedReviewText = State(initialValue: memo.content)
     } else {
       self._addedTags = State(initialValue: [])
       self._reviewText = State(initialValue: "")
+      
+      self._savedAddedTags = State(initialValue: [])
+      self._savedReviewText = State(initialValue: "")
     }
   }
   
   // MARK: - Body
   var body: some View {
-    VStack(spacing: 15) {
-      tagInputSection
-      memoContentSection
-      Spacer()
+    ZStack {
+      if isTagInputFocused {
+        Color.black.opacity(0.001)
+          .ignoresSafeArea()
+          .onTapGesture {
+            isTagInputFocused = false
+          }
+          .zIndex(0)
+      }
+      
+      VStack(spacing: 15) {
+        tagInputSection
+        memoContentSection
+        Spacer()
+      }
+      .padding(.top)
+      .zIndex(1)
+      
     }
-    .padding(.top)
     .navigationTitle(isEditMode ? "회고 수정" : "회고 작성")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
@@ -63,10 +89,11 @@ struct TexteditView: View {
       }
       ToolbarItem(placement: .navigationBarTrailing) {
         Button("완료") { saveMemoAndDismissFocus() }
-          .disabled(reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && addedTags.isEmpty)
+          .disabled((reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && addedTags.isEmpty) || !isContentChanged)
       }
     }
     .navigationBarBackButtonHidden(true)
+    .animation(.default, value: isTagInputFocused)
   }
   
   // MARK: - Child Views
@@ -94,13 +121,10 @@ struct TexteditView: View {
             addTag(fromString: newValue.replacingOccurrences(of: ",", with: ""))
           }
         }
-        .overlay(alignment: .topLeading) {
-          if isTagInputFocused {
-            tagSuggestionView
-              .offset(y: 35)
-          }
-        }
-        .zIndex(1)
+      
+      if isTagInputFocused {
+        tagSuggestionView
+      }
     }
     .padding(.horizontal)
   }
@@ -123,10 +147,6 @@ struct TexteditView: View {
         }
       }
       .padding(.horizontal)
-      .onTapGesture {
-        isTagInputFocused = false
-      }
-      .disabled(isTagInputFocused)
   }
   
   private var tagSuggestionView: some View {
@@ -135,7 +155,8 @@ struct TexteditView: View {
         Text("일치하는 태그가 없습니다.")
           .font(.callout)
           .foregroundColor(.secondary)
-          .frame(maxWidth: .infinity, minHeight: 200)
+          .frame(maxWidth: .infinity, alignment: .center)
+          .padding(.vertical, 20)
       } else {
         LazyVStack(alignment: .leading, spacing: 0) {
           ForEach(tagSuggestions, id: \.self) { suggestion in
@@ -162,15 +183,16 @@ struct TexteditView: View {
             }
           }
         }
-        .padding(.vertical, 5)
       }
     }
     .frame(height: 200)
     .background(Color(uiColor: .systemBackground))
-    .contentShape(Rectangle())
-    .onTapGesture {}
     .clipShape(RoundedRectangle(cornerRadius: 10))
     .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
+    .overlay(
+      RoundedRectangle(cornerRadius: 10)
+        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+    )
   }
   
   // MARK: - Functions
@@ -201,14 +223,24 @@ struct TexteditView: View {
       if !trimmedText.isEmpty || !addedTags.isEmpty {
         let newMemo = Memo(day: Date(), tags: addedTags, content: trimmedText)
         memos.append(newMemo)
+        
         self.memoToEdit = newMemo
         self.isEditMode = true
       }
     }
+    savedReviewText = trimmedText
+    savedAddedTags = addedTags
   }
   
-  private func saveAndDismiss() { saveMemo(); dismiss() }
-  private func saveMemoAndDismissFocus() { saveMemo(); isTagInputFocused = false }
+  private func saveAndDismiss() {
+    saveMemo()
+    dismiss()
+  }
+  
+  private func saveMemoAndDismissFocus() {
+    saveMemo()
+    isTagInputFocused = false
+  }
 }
 
 // MARK: - Reusable TagPill View

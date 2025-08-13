@@ -160,7 +160,7 @@ struct MemoRowView: View {
         HStack {
           ForEach(memo.tags.filter { !$0.isEmpty }, id: \.self) { tag in
             Text(tag)
-              .font(.caption).fontWeight(.bold)
+              .font(.system(size: fontSize - 8, weight: .bold))
               .padding(.horizontal, 10).padding(.vertical, 4)
               .foregroundStyle(.white)
               .background(Capsule().fill(Color.blue))
