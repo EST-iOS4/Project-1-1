@@ -7,6 +7,18 @@
 
 import SwiftUI
 
+extension Date {
+    static let yyyyMMddFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyy. MM. dd"
+        return formatter
+    }()
+
+    func toYYYYMMDD() -> String {
+        Date.yyyyMMddFormatter.string(from: self)
+    }
+}
+
 struct ListView: View {
   // MARK: - Properties
   
@@ -118,6 +130,7 @@ struct ListView: View {
 
 // MARK: - MemoRowView
 struct MemoRowView: View {
+<<<<<<< HEAD
   let memo: Memo
   let fontSize: Double
   
@@ -133,6 +146,36 @@ struct MemoRowView: View {
               .foregroundStyle(.white)
               .background(Capsule().fill(Color.blue))
           }
+=======
+    let memo: Memo
+    let fontSize: Double
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if !memo.tags.allSatisfy({ $0.isEmpty }) {
+                HStack {
+                    ForEach(memo.tags.filter { !$0.isEmpty }, id: \.self) { tag in
+                        Text(tag)
+                            .font(.system(size: fontSize - 7)
+                                .weight(.semibold))
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
+                            .foregroundStyle(.white)
+                            .background(Capsule().fill(Color.blue))
+                    }
+                }
+            }
+            Text(memo.content) //제목
+                .font(.system(size: fontSize))
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+            HStack {
+                Spacer()
+              Text(memo.day.toYYYYMMDD())
+                    .font(.system(size: fontSize - 7))
+                    .foregroundStyle(.gray)
+            }
+>>>>>>> main
         }
       }
       Text(memo.content)

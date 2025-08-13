@@ -160,13 +160,13 @@ struct ChartView: View {
           .frame(maxWidth: .infinity, alignment: .leading)
           .font(.system(size: isPad ? 40 : 20))
           .padding(10)
-          .padding(.bottom, 20)
+          .padding(.bottom, 10)
           
         HStack(spacing: isPad ? 60 : 20) {
           Circle()
-            .frame(width: 250, height: 250)
+            .frame(width: 150, height: 150)
             .foregroundColor(.blue)
-            .padding(.trailing, 100)
+            .padding(.trailing, 10)
           
           VStack(alignment: .leading) {
             ForEach(Array(viewModel.countTags.keys.enumerated()), id: \.offset) { idx, key in
@@ -212,6 +212,44 @@ struct DayCell: View {
       .font(.system(size: size * 0.5))
   }
 }
+
+struct FullYearCell: View {
+  let markedDates: Set<Data>
+  @State var baseYear: Int
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  
+  private let calendar: Calendar = .current
+  private let dayWeek = ["일", "월", "화", "수", "목", "금", "토"]
+  
+  var body: some View {
+    let isPad = horizontalSizeClass == .regular
+    let squareSize: CFloat = isPad ? 28 : 14
+    let squareSpacing: CFloat = isPad ? 6 : 4
+    let weekdayLabelWidth: CGFloat = isPad ? 40 : 20
+    
+    VStack(alignment: .leading) {
+      HStack {
+        Spacer()
+        Button { baseYear -= 1} label: {
+          Image(systemName: "chevron.left").bold()
+        }
+        Text("\(String(baseYear))년")
+          .font(isPad ? .title : .title3)
+          .bold()
+        Button { baseYear += 1} label: {
+          Image(systemName: "chevron.left").bold()
+        }
+        Spacer()
+        
+
+      }
+      .padding(.horizontal)
+      .padding(.top, 8)
+      
+    }
+  }
+}
+
 
 #Preview {
   ChartView(markedDates: Set<Date>(),
