@@ -10,22 +10,31 @@ import SwiftUI
 
 struct TexteditView: View {
   // MARK: - Properties
+  
+  enum FocusField {
+    case tag, content
+  }
+  
   @EnvironmentObject var tagStore: TagStore
   @Environment(\.dismiss) var dismiss
   
   @Binding var memos: [Memo]
   
-  @State var memoToEdit: Memo?
   @State private var addedTags: [String]
   @State private var currentTagInput: String = ""
   @State private var reviewText: String
+  
   @State private var isEditMode: Bool
-  @FocusState private var isTagInputFocused: Bool
+  @State var memoToEdit: Memo?
+  @FocusState private var focusedField: FocusField?
+  
   @State private var savedReviewText: String
   @State private var savedAddedTags: [String]
   
-    @AppStorage("fontSize") var fontSize: Double = 16
-    
+  @AppStorage("fontSize") var fontSize: Double = 16
+  
+  // MARK: - Computed Properties
+  
   private var tagSuggestions: [String] {
     if currentTagInput.isEmpty {
       return tagStore.allTags.filter { !addedTags.contains($0) }
@@ -41,6 +50,7 @@ struct TexteditView: View {
   }
   
   // MARK: - Initializer
+  
   init(memos: Binding<[Memo]>, memoToEdit: Memo? = nil) {
     self._memos = memos
     self._memoToEdit = State(initialValue: memoToEdit)
@@ -63,81 +73,89 @@ struct TexteditView: View {
   }
   
   // MARK: - Body
+
   var body: some View {
-    ZStack {
-      if isTagInputFocused {
-        Color.black.opacity(0.001)
-          .ignoresSafeArea()
-          .onTapGesture {
-            isTagInputFocused = false
-          }
-          .zIndex(0)
-      }
-      
-      VStack(spacing: 15) {
-        tagInputSection
-        memoContentSection
-        Spacer()
-      }
-      .padding(.top)
-      .zIndex(1)
-      
+    VStack(spacing: 15) {
+      tagInputSection
+        .zIndex(1)
+      memoContentSection
     }
+    .padding(.top)
+    .scrollDismissesKeyboard(.interactively) // VStack으로 이동
     .navigationTitle(isEditMode ? "회고 수정" : "회고 작성")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .navigationBarLeading) {
-        Button { saveAndDismiss() } label: { Image(systemName: "chevron.backward") }
+        Button { dismiss() } label: { Image(systemName: "chevron.backward") }
       }
       ToolbarItem(placement: .navigationBarTrailing) {
-        Button("완료") { saveMemoAndDismissFocus() }
+        Button("저장") { saveMemoAndDismissFocus() }
           .disabled((reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && addedTags.isEmpty) || !isContentChanged)
+      }
+      ToolbarItem(placement: .keyboard) {
+        HStack {
+          Spacer()
+          Button("완료") {
+            focusedField = nil
+          }
+        }
       }
     }
     .navigationBarBackButtonHidden(true)
-    .animation(.default, value: isTagInputFocused)
+    .animation(.default, value: focusedField)
   }
   
   // MARK: - Child Views
-    private var tagInputSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-          if !addedTags.isEmpty {
-            ScrollView(.horizontal, showsIndicators: false) {
-              HStack {
-                ForEach(addedTags, id: \.self) { tag in
-                    TagPill(label: tag, onDelete: {
-                      addedTags.removeAll { $0 == tag }
-                    }, fontSize: fontSize)
-                }
-              }
+  
+  private var tagInputSection: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      if !addedTags.isEmpty {
+        ScrollView(.horizontal, showsIndicators: false) {
+          HStack {
+            ForEach(addedTags, id: \.self) { tag in
+              TagPill(label: tag, onDelete: {
+                addedTags.removeAll { $0 == tag }
+              }, fontSize: fontSize)
             }
+          }
+        }
         .frame(maxHeight: 32)
       }
       
       TextField("태그 추가 (쉼표 또는 Return으로 입력)", text: $currentTagInput)
-            .font(.system(size: fontSize))
-        .textFieldStyle(.roundedBorder)
-        .focused($isTagInputFocused)
+        .font(.system(size: fontSize))
+        .padding(10)
+        .background(Color(uiColor: .systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(
+          RoundedRectangle(cornerRadius: 12)
+            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+        )
+        .focused($focusedField, equals: .tag)
         .onSubmit(addTagFromSubmit)
         .onChange(of: currentTagInput) { _, newValue in
           if newValue.contains(",") {
             addTag(fromString: newValue.replacingOccurrences(of: ",", with: ""))
           }
         }
-      
-      if isTagInputFocused {
-        tagSuggestionView
-      }
+        .overlay(alignment: .topLeading) {
+          if focusedField == .tag {
+            tagSuggestionView
+              .offset(y: 50)
+          }
+        }
     }
     .padding(.horizontal)
   }
   
   private var memoContentSection: some View {
     TextEditor(text: $reviewText)
-          .font(.system(size: fontSize))
-      .font(.body)
+      .font(.system(size: fontSize))
       .scrollContentBackground(.hidden)
+      .focused($focusedField, equals: .content)
       .padding(8)
+      .background(Color(uiColor: .systemGray6))
+      .clipShape(RoundedRectangle(cornerRadius: 12))
       .overlay(
         RoundedRectangle(cornerRadius: 12)
           .stroke(Color.gray.opacity(0.5), lineWidth: 1)
@@ -145,7 +163,7 @@ struct TexteditView: View {
       .overlay(alignment: .topLeading) {
         if reviewText.isEmpty {
           Text("회고를 작성하세요...")
-                .font(.system(size: fontSize))
+            .font(.system(size: fontSize))
             .foregroundColor(.gray.opacity(0.7))
             .padding(16)
             .allowsHitTesting(false)
@@ -153,12 +171,11 @@ struct TexteditView: View {
       }
       .padding(.horizontal)
   }
-  
   private var tagSuggestionView: some View {
     ScrollView {
       if tagSuggestions.isEmpty {
         Text("일치하는 태그가 없습니다.")
-              .font(.system(size: fontSize))
+          .font(.system(size: fontSize))
           .font(.callout)
           .foregroundColor(.secondary)
           .frame(maxWidth: .infinity, alignment: .center)
@@ -168,8 +185,8 @@ struct TexteditView: View {
           ForEach(tagSuggestions, id: \.self) { suggestion in
             HStack {
               Text(suggestion)
-                    .font(.system(size: fontSize))
-                    .padding(.vertical, 4)
+                .font(.system(size: fontSize))
+                .padding(.vertical, 4)
               Spacer()
               Image(systemName: "xmark.circle.fill")
                 .foregroundStyle(.gray.opacity(0.4))
@@ -204,7 +221,9 @@ struct TexteditView: View {
   }
   
   // MARK: - Functions
+  
   private func addTagFromSubmit() { addTag(fromString: currentTagInput) }
+  
   private func addTag(fromString tag: String) {
     let trimmedTag = tag.trimmingCharacters(in: .whitespacesAndNewlines)
     if !trimmedTag.isEmpty && !addedTags.contains(trimmedTag) {
@@ -213,6 +232,7 @@ struct TexteditView: View {
     }
     currentTagInput = ""
   }
+  
   private func indexSet(for tag: String) -> IndexSet? {
     if let index = tagStore.allTags.firstIndex(of: tag) { return IndexSet(integer: index) }
     return nil
@@ -222,36 +242,32 @@ struct TexteditView: View {
     let trimmedText = reviewText.trimmingCharacters(in: .whitespacesAndNewlines)
     tagStore.addTags(addedTags)
     
-    if isEditMode {
-      if let memoToEdit = memoToEdit, let index = memos.firstIndex(where: { $0.id == memoToEdit.id }) {
-        memos[index].content = trimmedText
-        memos[index].tags = addedTags
-      }
+    if isEditMode, let memoToEditID = memoToEdit?.id, let index = memos.firstIndex(where: { $0.id == memoToEditID }) {
+      memos[index].content = trimmedText
+      memos[index].tags = addedTags
+      memos[index].day = Date()
     } else {
       if !trimmedText.isEmpty || !addedTags.isEmpty {
-        let newMemo = Memo(day: Date(), tags: addedTags, content: trimmedText)
-        memos.append(newMemo)
+        let newMemo = Memo(id: UUID(), day: Date(), tags: addedTags, content: trimmedText)
+        memos.insert(newMemo, at: 0)
         
         self.memoToEdit = newMemo
         self.isEditMode = true
       }
     }
+    
     savedReviewText = trimmedText
     savedAddedTags = addedTags
   }
   
-  private func saveAndDismiss() {
-    saveMemo()
-    dismiss()
-  }
-  
   private func saveMemoAndDismissFocus() {
     saveMemo()
-    isTagInputFocused = false
+    focusedField = nil
   }
 }
 
 // MARK: - Reusable TagPill View
+
 struct TagPill: View {
   let label: String
   let onDelete: () -> Void
