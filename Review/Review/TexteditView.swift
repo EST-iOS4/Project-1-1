@@ -73,17 +73,15 @@ struct TexteditView: View {
   }
   
   // MARK: - Body
-  
+
   var body: some View {
-    // 복잡한 ZStack을 제거하고 ScrollView와 VStack의 단순한 구조로 변경
-    ScrollView {
-      VStack(spacing: 15) {
-        tagInputSection
-        memoContentSection
-      }
-      .padding(.top)
+    VStack(spacing: 15) {
+      tagInputSection
+        .zIndex(1)
+      memoContentSection
     }
-    .scrollDismissesKeyboard(.interactively)
+    .padding(.top)
+    .scrollDismissesKeyboard(.interactively) // VStack으로 이동
     .navigationTitle(isEditMode ? "회고 수정" : "회고 작성")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
@@ -94,7 +92,6 @@ struct TexteditView: View {
         Button("저장") { saveMemoAndDismissFocus() }
           .disabled((reviewText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && addedTags.isEmpty) || !isContentChanged)
       }
-      // 키보드 위에 '완료' 버튼을 추가
       ToolbarItem(placement: .keyboard) {
         HStack {
           Spacer()
@@ -141,10 +138,12 @@ struct TexteditView: View {
             addTag(fromString: newValue.replacingOccurrences(of: ",", with: ""))
           }
         }
-      
-      if focusedField == .tag {
-        tagSuggestionView
-      }
+        .overlay(alignment: .topLeading) {
+          if focusedField == .tag {
+            tagSuggestionView
+              .offset(y: 50)
+          }
+        }
     }
     .padding(.horizontal)
   }
@@ -153,7 +152,6 @@ struct TexteditView: View {
     TextEditor(text: $reviewText)
       .font(.system(size: fontSize))
       .scrollContentBackground(.hidden)
-      .frame(minHeight: 300)
       .focused($focusedField, equals: .content)
       .padding(8)
       .background(Color(uiColor: .systemGray6))
@@ -173,7 +171,6 @@ struct TexteditView: View {
       }
       .padding(.horizontal)
   }
-  
   private var tagSuggestionView: some View {
     ScrollView {
       if tagSuggestions.isEmpty {
