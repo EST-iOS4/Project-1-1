@@ -8,7 +8,7 @@
 import SwiftUI
 import Foundation
 
-struct Memo: Identifiable {
+struct Memo: Identifiable, Codable, Equatable {
     let id: UUID
     var day: Date
     var title: String
