@@ -28,18 +28,9 @@ struct ListView: View {
   @AppStorage("fontSize") var fontSize: Double = 20
 
   // 실제 앱에선 persistence/Store로 교체
-  @State private var memos: [Memo] = [
-    Memo(day: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, title: "UI/UX 디자인 원칙", tags: ["독서", "UI/UX"], content: "책 이름 : UI/UX 시작하기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -6, to: Date())!, title: "장보기 목록", tags: ["과일"], content: "수박, 복숭아, 양파, 아보카도"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, title: "신규 프로젝트 구상", tags: ["할 일"], content: "프로젝트 UI 생각하기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -20, to: Date())!, title: "Swift UI", tags: ["Xocde", "Swift Ui"], content: "공부하기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -25, to: Date())!, title: " 백준 풀기", tags: ["알고리즘"], content: "문제풀기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -28, to: Date())!, title: "은행가기", tags: ["개인 업무"], content: "9시에 은행가기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -28, to: Date())!, title: "약속", tags: ["개인 업무"], content: "친구 만나기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -28, to: Date())!, title: "운동하기", tags: ["개인 업무"], content: "달리기"),
-    Memo(day: Calendar.current.date(byAdding: .day, value: -28, to: Date())!, title: "미팅", tags: ["업무"], content: "10시에 고객사 가기")
-  ]
-
+  @State private var memos: [Memo] =
+    DummyData.generateRandomInYears(startYear: 2022, endYear: 2025, total: 500)
+  
   // 달력 체크용 날짜 집합 (startOfDay)
   private var memoDates: Set<Date> {
     let cal = Calendar.current
