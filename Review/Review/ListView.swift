@@ -7,20 +7,6 @@
 
 import SwiftUI
 
-// 날짜 표기 유틸 (yyyy. MM. dd)
-extension Date {
-  static let yyyyMMddFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "ko_KR")
-    formatter.dateFormat = "yyyy. MM. dd"
-    return formatter
-  }()
-
-  func toYYYYMMDD() -> String {
-    Date.yyyyMMddFormatter.string(from: self)
-  }
-}
-
 struct ListView: View {
   @EnvironmentObject var tagStore: TagStore
   @State private var selectedTab: Screen = .memoList
