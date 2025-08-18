@@ -1,3 +1,4 @@
+//
 //  ChartView.swift
 //  Review
 //
@@ -6,24 +7,16 @@
 
 import SwiftUI
 
-extension MonthlyLineChartNative {
-  init(data: [Item], currentMonth: Int, tickValues: [Double]) {
-    self.init(data: data, currentMonth: currentMonth)
-  }
-}
-
 private enum ChartSegment: String, CaseIterable, Identifiable {
   case history = "회고 이력"
   case memoStats = "회고 통계"
-  case keywordStats = "키워드 통계"
+  case keywordStats = "태그 통계"
   var id: String { rawValue }
 }
 
 private struct SheetDate: Identifiable, Equatable {
   let date: Date
-  var id: Double {
-    Calendar.current.startOfDay(for: date).timeIntervalSince1970
-  }
+  var id: Double { Calendar.current.startOfDay(for: date).timeIntervalSince1970 }
 }
 
 extension Notification.Name {
@@ -93,8 +86,7 @@ struct ChartView: View {
     // 배경
     .background(colorScheme == .dark ? Color.black : Color(.systemGray6))
     // 알림 수신 → 최신 메모로 교체
-    .onReceive(NotificationCenter.default.publisher(for: .memosDidChange)) {
-      note in
+    .onReceive(NotificationCenter.default.publisher(for: .memosDidChange)) { note in
       if let latest = note.userInfo?["memos"] as? [Memo] {
         self.workingMemos = latest
       }
@@ -109,10 +101,7 @@ private struct HistorySectionView: View {
   @State private var selectedDate: Date? = nil
   @State private var showYearMonthPicker = false
   @State private var sheetItem: SheetDate? = nil
-  @State private var heatmapYear: Int = Calendar.current.component(
-    .year,
-    from: Date()
-  )
+  @State private var heatmapYear: Int = Calendar.current.component(.year, from: Date())
   @State private var showYearPicker = false
 
   private var countsFromMemos: [Date: Int] {
@@ -211,15 +200,8 @@ private struct HistorySectionView: View {
   }
 
   private func changeMonth(by value: Int) {
-    if let newDate = Calendar.current.date(
-      byAdding: .month,
-      value: value,
-      to: baseDate
-    ),
-      let start = Calendar.current.date(
-        from: Calendar.current.dateComponents([.year, .month], from: newDate)
-      )
-    {
+    if let newDate = Calendar.current.date(byAdding: .month, value: value, to: baseDate),
+       let start = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: newDate)) {
       baseDate = start
     }
     selectedDate = nil
@@ -239,15 +221,13 @@ private struct HistorySectionView: View {
   private func goToToday() {
     let cal = Calendar.current
     let now = Date()
-    if let startOfMonth = cal.date(
-      from: cal.dateComponents([.year, .month], from: now)
-    ) {
+    if let startOfMonth = cal.date(from: cal.dateComponents([.year, .month], from: now)) {
       withAnimation(.easeInOut(duration: 0.28)) {
         baseDate = startOfMonth
         selectedDate = now
       }
       #if canImport(UIKit)
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+      UIImpactFeedbackGenerator(style: .light).impactOccurred()
       #endif
     }
   }
@@ -315,11 +295,10 @@ private struct MonthCalendarGrid: View {
 
   private var days: [Date?] {
     guard
-      let firstDay = cal.date(
-        from: cal.dateComponents([.year, .month], from: baseDate)
-      ),
+      let firstDay = cal.date(from: cal.dateComponents([.year, .month], from: baseDate)),
       let range = cal.range(of: .day, in: .month, for: firstDay)
     else { return [] }
+
     let firstWeekday = cal.component(.weekday, from: firstDay)
     var arr: [Date?] = Array(repeating: nil, count: max(firstWeekday - 1, 0))
     for d in range {
@@ -355,16 +334,12 @@ private struct MonthCalendarGrid: View {
       ) {
         ForEach(Array(days.indices), id: \.self) { i in
           if let date = days[i] {
-            let isInCurrentMonth = cal.isDate(
-              date,
-              equalTo: baseDate,
-              toGranularity: .month
-            )
+            let isInCurrentMonth = cal.isDate(date, equalTo: baseDate, toGranularity: .month)
             let isToday = cal.isDateInToday(date)
-            let isSelected =
-              selectedDate.map { cal.isDate($0, inSameDayAs: date) } ?? false
+            let isSelected = selectedDate.map { cal.isDate($0, inSameDayAs: date) } ?? false
             let key = cal.startOfDay(for: date)
             let count = countsByDay[key] ?? 0
+
             DayCell(
               date: date,
               isInCurrentMonth: isInCurrentMonth,
@@ -422,10 +397,7 @@ private struct DayCell: View {
     .overlay(
       Group {
         if let borderColor {
-          RoundedRectangle(cornerRadius: 6).stroke(
-            borderColor,
-            lineWidth: lineWidth
-          )
+          RoundedRectangle(cornerRadius: 6).stroke(borderColor, lineWidth: lineWidth)
         }
       }
     )
@@ -469,19 +441,11 @@ private struct YearHeatmapCanvas: View {
 
   private func startOfWeek(for date: Date) -> Date {
     let weekday = cal.component(.weekday, from: date)
-    return cal.date(
-      byAdding: .day,
-      value: -(weekday - 1),
-      to: cal.startOfDay(for: date)
-    )!
+    return cal.date(byAdding: .day, value: -(weekday - 1), to: cal.startOfDay(for: date))!
   }
   private func endOfWeek(for date: Date) -> Date {
     let weekday = cal.component(.weekday, from: date)
-    return cal.date(
-      byAdding: .day,
-      value: (7 - weekday),
-      to: cal.startOfDay(for: date)
-    )!
+    return cal.date(byAdding: .day, value: (7 - weekday), to: cal.startOfDay(for: date))!
   }
   private var startOfYear: Date {
     cal.date(from: DateComponents(year: year, month: 1, day: 1))!
@@ -491,13 +455,9 @@ private struct YearHeatmapCanvas: View {
   }
   private var weekStarts: [Date] {
     let gridStart = startOfWeek(for: startOfYear)
-    let gridEnd = endOfWeek(
-      for: cal.date(byAdding: .day, value: -1, to: endOfYearExclusive)!
-    )
+    let gridEnd = endOfWeek(for: cal.date(byAdding: .day, value: -1, to: endOfYearExclusive)!)
     let weekInterval: TimeInterval = 60 * 60 * 24 * 7
-    return stride(from: gridStart, through: gridEnd, by: weekInterval).map {
-      $0
-    }
+    return stride(from: gridStart, through: gridEnd, by: weekInterval).map { $0 }
   }
   private var contentWidth: CGFloat {
     let cols = CGFloat(weekStarts.count)
@@ -513,9 +473,9 @@ private struct YearHeatmapCanvas: View {
       let availW = proxy.size.width
       let availH = proxy.size.height
       #if canImport(UIKit)
-        let isPad = UIDevice.current.userInterfaceIdiom == .pad
+      let isPad = UIDevice.current.userInterfaceIdiom == .pad
       #else
-        let isPad = false
+      let isPad = false
       #endif
       let isLandscape = availW > availH
       let shouldCenter = isPad && isLandscape && contentWidth <= availW
@@ -545,20 +505,14 @@ private struct YearHeatmapCanvas: View {
     for (col, weekStart) in weekStarts.enumerated() {
       let x = CGFloat(col) * (cell + gap)
       if containsFirstOfMonth(weekStart) {
-        let lineRect = CGRect(
-          x: x - gap * 0.5,
-          y: 0,
-          width: 1,
-          height: contentHeight
-        )
+        let lineRect = CGRect(x: x - gap * 0.5, y: 0, width: 1, height: contentHeight)
         ctx.fill(
           Path(roundedRect: lineRect, cornerRadius: 0.5),
           with: .color(.gray.opacity(0.25))
         )
       }
       for row in 0..<7 {
-        guard let day = cal.date(byAdding: .day, value: row, to: weekStart)
-        else { continue }
+        guard let day = cal.date(byAdding: .day, value: row, to: weekStart) else { continue }
         if !(startOfYear..<endOfYearExclusive).contains(day) { continue }
         let key = cal.startOfDay(for: day)
         let hasMemo = (countsByDay[key] ?? 0) > 0
@@ -569,23 +523,16 @@ private struct YearHeatmapCanvas: View {
           height: cell
         )
         let path = Path(roundedRect: rect, cornerRadius: corner)
-        ctx.fill(
-          path,
-          with: .color(hasMemo ? .accentColor : .gray.opacity(0.15))
-        )
-        ctx.stroke(
-          path,
-          with: .color(.black.opacity(0.05)),
-          lineWidth: strokeWidth
-        )
+        ctx.fill(path, with: .color(hasMemo ? .accentColor : .gray.opacity(0.15)))
+        ctx.stroke(path, with: .color(.black.opacity(0.05)), lineWidth: strokeWidth)
       }
     }
   }
+
   private func containsFirstOfMonth(_ weekStart: Date) -> Bool {
     for d in 0..<7 {
       if let day = cal.date(byAdding: .day, value: d, to: weekStart),
-        cal.component(.day, from: day) == 1
-      {
+         cal.component(.day, from: day) == 1 {
         return true
       }
     }
@@ -597,23 +544,30 @@ private struct YearBottomPickerOverlay: View {
   let years: [Int]
   @Binding var selection: Int
   @Binding var isPresented: Bool
+
   var body: some View {
     GeometryReader { geo in
       ZStack(alignment: .bottom) {
-        Color.black.opacity(0.25).ignoresSafeArea().onTapGesture {
-          withAnimation(.snappy(duration: 0.2)) { isPresented = false }
-        }
+        Color.black.opacity(0.25)
+          .ignoresSafeArea()
+          .onTapGesture {
+            withAnimation(.snappy(duration: 0.2)) { isPresented = false }
+          }
+
         VStack(spacing: 12) {
           HStack {
             Button("취소") {
               withAnimation(.snappy(duration: 0.2)) { isPresented = false }
-            }.font(.body)
+            }
+            .font(.body)
             Spacer()
             Text("연도 선택").font(.headline)
             Spacer()
             Color.clear.frame(width: 44, height: 1)
           }
-          .padding(.horizontal, 20).padding(.top, 16)
+          .padding(.horizontal, 20)
+          .padding(.top, 16)
+
           ScrollView(.vertical, showsIndicators: true) {
             VStack(spacing: 0) {
               ForEach(years, id: \.self) { y in
@@ -622,40 +576,32 @@ private struct YearBottomPickerOverlay: View {
                   withAnimation(.snappy(duration: 0.2)) { isPresented = false }
                 } label: {
                   HStack {
-                    Text(verbatim: "\(y)년").font(
-                      .title3.weight(selection == y ? .bold : .regular)
-                    )
+                    Text(verbatim: "\(y)년")
+                      .font(.title3.weight(selection == y ? .bold : .regular))
                     Spacer()
                     if selection == y {
                       Image(systemName: "checkmark").font(.headline)
                     }
                   }
-                  .padding(.vertical, 10).padding(.horizontal, 4)
+                  .padding(.vertical, 10)
+                  .padding(.horizontal, 4)
                 }
                 .buttonStyle(.plain)
                 Divider()
               }
             }
-            .padding(.horizontal, 20).padding(.top, 8)
-            .contentMargins(
-              .bottom,
-              geo.safeAreaInsets.bottom + 24,
-              for: .scrollContent
-            )
+            .padding(.horizontal, 20)
+            .padding(.top, 8)
+            .contentMargins(.bottom, geo.safeAreaInsets.bottom + 24, for: .scrollContent)
           }
           Spacer(minLength: 0)
         }
         .frame(height: geo.size.height / 1.5)
         .frame(maxWidth: .infinity)
-        .contentMargins(
-          .bottom,
-          geo.safeAreaInsets.bottom + 24,
-          for: .scrollContent
-        )
+        .contentMargins(.bottom, geo.safeAreaInsets.bottom + 24, for: .scrollContent)
         .background(
-          RoundedRectangle(cornerRadius: 24, style: .continuous).fill(
-            Color(.systemBackground)
-          )
+          RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .fill(Color(.systemBackground))
         )
         .shadow(radius: 12)
       }
@@ -668,14 +614,13 @@ private struct MemoStatsSectionView: View {
   let dayCounts: [Date: Int]
 
   private var totalMemoCount: Int { dayCounts.values.reduce(0, +) }
-
-  // ✅ 올해 1월 ~ 현재 월까지의 "월 평균 작성수"
-  private var monthlyAverageCount: Double {
-    let total = thisYearMonthlyData.reduce(0) { $0 + $1.count }
-    return Double(total) / Double(max(currentMonth, 1))
-  }
-  private var monthlyAverageString: String {
-    String(format: "%.1f", monthlyAverageCount)
+  private var thisMonthMemoCount: Int {
+    let cal = Calendar.current
+    let now = Date()
+    return dayCounts.reduce(0) { acc, pair in
+      let (day, count) = pair
+      return cal.isDate(day, equalTo: now, toGranularity: .month) ? acc + count : acc
+    }
   }
 
   private var last7Days: [Date] {
@@ -705,13 +650,9 @@ private struct MemoStatsSectionView: View {
     let count: Int
     var id: Int { month }
   }
-  private var currentYear: Int {
-    Calendar.current.component(.year, from: Date())
-  }
+  private var currentYear: Int { Calendar.current.component(.year, from: Date()) }
   private var currentYearString: String { String(currentYear) }
-  private var currentMonth: Int {
-    Calendar.current.component(.month, from: Date())
-  }
+  private var currentMonth: Int { Calendar.current.component(.month, from: Date()) }
   private var monthsUpToNow: [Int] { Array(1...currentMonth) }
   private var thisYearMonthlyData: [MonthCount] {
     let cal = Calendar.current
@@ -732,9 +673,8 @@ private struct MemoStatsSectionView: View {
 
         SettingsCard {
           HStack(spacing: 12) {
-            StatCard(title: "총 메모", value: "\(totalMemoCount)")
-            // ✅ 타이틀/값 교체
-            StatCard(title: "올해 월 평균 메모", value: monthlyAverageString)
+            StatCard(title: "총 회고 수", value: "\(totalMemoCount)")
+            StatCard(title: "올해 월 평균 회고 수", value: "\(thisMonthMemoCount)")
           }
         }
 
@@ -743,11 +683,9 @@ private struct MemoStatsSectionView: View {
           VStack(alignment: .leading, spacing: 12) {
             Text("최근 1주 추이").font(.headline)
             Last7BarChartNative(
-              data: last7Data.map {
-                Last7BarChartNative.Item(date: $0.date, count: $0.count)
-              },
-              tickValues: yTicks
+              data: last7Data.map { Last7BarChartNative.Item(date: $0.date, count: $0.count) }
             )
+            .padding(.top, 6)
             .frame(height: 180)
           }
         }
@@ -757,12 +695,11 @@ private struct MemoStatsSectionView: View {
           VStack(alignment: .leading, spacing: 12) {
             Text("\(currentYearString)년 월별 추이").font(.headline)
             MonthlyLineChartNative(
-              data: thisYearMonthlyData.map {
-                MonthlyLineChartNative.Item(month: $0.month, count: $0.count)
-              },
+              data: thisYearMonthlyData.map { MonthlyLineChartNative.Item(month: $0.month, count: $0.count) },
               currentMonth: currentMonth,
               tickValues: yTicks
             )
+            .padding(.top, 6)
             .frame(height: 200)
           }
         }
@@ -773,20 +710,15 @@ private struct MemoStatsSectionView: View {
   }
 }
 
-
 private struct StatCard: View {
   let title: String
   let value: String
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
-      Text(title).font(.caption).foregroundStyle(.secondary).frame(
-        maxWidth: .infinity,
-        alignment: .center
-      )
-      Text(value).font(.title2.weight(.bold)).frame(
-        maxWidth: .infinity,
-        alignment: .center
-      )
+      Text(title).font(.caption).foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .center)
+      Text(value).font(.title2.weight(.bold))
+        .frame(maxWidth: .infinity, alignment: .center)
     }
     .padding(14)
     .frame(maxWidth: .infinity)
@@ -933,13 +865,13 @@ private struct KeywordStatsSectionView: View {
   var body: some View {
     ScrollView(.vertical, showsIndicators: true) {
       VStack(alignment: .leading, spacing: 16) {
-        Text("키워드 통계").font(.title3.weight(.semibold))
+        Text("태그 통계").font(.title3.weight(.semibold))
 
         // 도넛 카드
         SettingsCard {
           VStack(alignment: .leading, spacing: 12) {
             HStack {
-              Text("키워드 비중").font(.headline)
+              Text("태그 비중").font(.headline)
               Spacer()
               Picker("기간", selection: $selectedPeriod) {
                 ForEach(Period.allCases) { p in Text(p.rawValue).tag(p) }
@@ -949,11 +881,10 @@ private struct KeywordStatsSectionView: View {
             }
 
             if donutTotal == 0 {
-              Text("표시할 태그가 없습니다.").foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center).padding(
-                  .vertical,
-                  24
-                )
+              Text("표시할 태그가 없습니다.")
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 24)
             } else {
               ZStack {
                 DonutChartNative(
@@ -965,14 +896,6 @@ private struct KeywordStatsSectionView: View {
                 .frame(width: 220, height: 220)
               }
               .frame(maxWidth: .infinity, alignment: .center)
-              //              .overlay(alignment: .center) {
-              //                if donutTotal > 0 {
-              //                  VStack(spacing: 2) {
-              //        //            Text(selectedPeriod.rawValue).font(.caption2).foregroundStyle(.secondary)
-              //          //          Text("총 \(donutTotal)").font(.title3.weight(.bold))
-              //                  }
-              //                }
-              //              }
 
               VStack(alignment: .leading, spacing: 8) {
                 ForEach(donutSlices) { s in
@@ -980,9 +903,9 @@ private struct KeywordStatsSectionView: View {
                     Circle().fill(s.color).frame(width: 10, height: 10)
                     Text(s.name).font(.subheadline)
                     Spacer()
-                    Text("\(s.count) · \(percentString(s.count))").font(
-                      .footnote
-                    ).foregroundStyle(.secondary)
+                    Text("\(s.count) · \(percentString(s.count))")
+                      .font(.footnote)
+                      .foregroundStyle(.secondary)
                   }
                 }
               }
@@ -994,7 +917,7 @@ private struct KeywordStatsSectionView: View {
         SettingsCard {
           VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
-              Text("상위 4 키워드 (전체)").font(.headline)
+              Text("상위 4 태그 (전체)").font(.headline)
               Text("총 \(totalKeywordAllTime)")
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 8).padding(.vertical, 4)
@@ -1010,11 +933,10 @@ private struct KeywordStatsSectionView: View {
             }
 
             if barDataEffective.isEmpty {
-              Text("표시할 태그가 없습니다.").foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center).padding(
-                  .vertical,
-                  24
-                )
+              Text("표시할 태그가 없습니다.")
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.vertical, 24)
             } else {
               HBarListNative(
                 items: barDataEffective.map {
@@ -1028,7 +950,7 @@ private struct KeywordStatsSectionView: View {
                 legendDot(.yellow, "2위")
                 legendDot(.green, "3위")
                 legendDot(.blue, "4위")
-                legendDot(.gray, showAllBars ? "그 외(개별)" : "기타")
+          //      legendDot(.gray, showAllBars ? "그 외(개별)" : "기타")
               }
               .font(.caption)
               .foregroundStyle(.secondary)
@@ -1041,9 +963,8 @@ private struct KeywordStatsSectionView: View {
     }
   }
 
-  @ViewBuilder private func legendDot(_ color: Color, _ label: String)
-    -> some View
-  {
+  @ViewBuilder
+  private func legendDot(_ color: Color, _ label: String) -> some View {
     HStack(spacing: 6) {
       Circle().fill(color).frame(width: 8, height: 8)
       Text(label)
@@ -1085,17 +1006,19 @@ private struct YearMonthWheelPicker: View {
         Button("완료") { onConfirm(yearSelection, tempMonth) }
       }
       .padding(.horizontal)
+
       HStack {
         Picker("년도", selection: $yearSelection) {
           ForEach(years, id: \.self) { Text(String($0) + "년").tag($0) }
         }
-        .pickerStyle(.wheel).frame(maxWidth: .infinity)
+        .pickerStyle(.wheel)
+        .frame(maxWidth: .infinity)
+
         Picker("월", selection: $tempMonth) {
-          ForEach(months, id: \.self) {
-            Text(String(format: "%02d월", $0)).tag($0)
-          }
+          ForEach(months, id: \.self) { Text(String(format: "%02d월", $0)).tag($0) }
         }
-        .pickerStyle(.wheel).frame(maxWidth: .infinity)
+        .pickerStyle(.wheel)
+        .frame(maxWidth: .infinity)
       }
       .frame(height: 160)
     }
@@ -1118,7 +1041,7 @@ struct DonutChartNative: View {
     max(Double(slices.reduce(0) { $0 + $1.count }), 0)
   }
 
-  // 👇 각도 계산을 별도 메서드로 분리 (ViewBuilder 밖)
+  // 각도 계산을 별도 메서드로 분리 (ViewBuilder 밖)
   private func anglePairs() -> [(start: Angle, end: Angle)] {
     var result: [(start: Angle, end: Angle)] = []
     var cursor = Angle.degrees(-90)
@@ -1135,7 +1058,7 @@ struct DonutChartNative: View {
   var body: some View {
     GeometryReader { geo in
       let size = min(geo.size.width, geo.size.height)
-      let angles = anglePairs()  // 🔹 body 안에서는 호출만
+      let angles = anglePairs()
 
       ZStack {
         ForEach(slices.indices, id: \.self) { i in
