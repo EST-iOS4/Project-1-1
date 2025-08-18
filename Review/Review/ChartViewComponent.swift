@@ -116,18 +116,18 @@ struct MonthlyLineChartNative: View {
     var month: Int
     var count: Int
   }
-  
+
   private var data: [Item]
   private var currentMonth: Int
   private var ticks: [Int]
   private var yMax: Int = 20 // fixed
-  
+
   init(data: [Item], currentMonth: Int, tickValues: [Double] = [5,10,15,20]) {
     self.data = data
     self.currentMonth = max(currentMonth, 1)
     self.ticks = tickValues.map(Int.init)
   }
-  
+
   var body: some View {
     GeometryReader { geo in
       let W = geo.size.width
@@ -139,35 +139,37 @@ struct MonthlyLineChartNative: View {
       let plotW = max(W - rightPad - leftPad, 1)
       let plotH = max(H - bottom - top, 1)
       let step = plotW / CGFloat(max(currentMonth - 1, 1))
-      
-      func xPos(_ m: Int) -> CGFloat {
-        guard currentMonth > 1 else { return leftPad + plotW / 2 }
-        return leftPad + CGFloat(m - 1) * step
+
+      // 인라인 좌표 계산 (중첩 함수/클로저 선언 없음)
+      let xFor: (Int) -> CGFloat = { m in
+        currentMonth > 1 ? (leftPad + CGFloat(m - 1) * step) : (leftPad + plotW / 2)
       }
-      func yPos(_ c: Int) -> CGFloat {
+      let yFor: (Int) -> CGFloat = { c in
         let ratio = CGFloat(c) / CGFloat(max(yMax, 1))
         return top + (1 - ratio) * plotH
       }
-      
+
       ZStack(alignment: .bottomLeading) {
         TrailingYAxis(ticks: ticks, yMax: yMax)
           .frame(width: W, height: plotH)
           .padding(.trailing, rightPad)
           .offset(y: top)
-        
+
         Path { p in
-          guard let first = data.first else { return }
-          p.move(to: CGPoint(x: xPos(first.month), y: yPos(first.count)))
-          for it in data.dropFirst() {
-            p.addLine(to: CGPoint(x: xPos(it.month), y: yPos(it.count)))
+          if let first = data.first {
+            p.move(to: CGPoint(x: xFor(first.month), y: yFor(first.count)))
+            for it in data.dropFirst() {
+              p.addLine(to: CGPoint(x: xFor(it.month), y: yFor(it.count)))
+            }
           }
         }
         .stroke(Color.accentColor, lineWidth: 2)
-        
+
         ForEach(data) { it in
-          let pt = CGPoint(x: xPos(it.month), y: yPos(it.count))
-          Circle().fill(Color.accentColor).frame(width: 6, height: 6)
-            .position(pt)
+          Circle()
+            .fill(Color.accentColor)
+            .frame(width: 6, height: 6)
+            .position(x: xFor(it.month), y: yFor(it.count))
             .overlay(alignment: .top) {
               if it.count > 0 {
                 Text("\(it.count)")
@@ -177,7 +179,7 @@ struct MonthlyLineChartNative: View {
               }
             }
         }
-        
+
         HStack(spacing: 0) {
           ForEach(1...currentMonth, id: \.self) { m in
             Text("\(m)월")
@@ -193,46 +195,6 @@ struct MonthlyLineChartNative: View {
   }
 }
 
-// MARK: - Donut (Top4 + Others)
-struct DonutChartNative: View {
-  var slices: [NativeSlice]
-  var innerRatio: CGFloat = 0.6
-  
-  init(slices: [NativeSlice], innerRatio: CGFloat = 0.6) {
-    self.slices = slices; self.innerRatio = innerRatio
-  }
-  
-  private var total: Double { max(Double(slices.reduce(0) { $0 + $1.count }), 0) }
-  
-  var body: some View {
-    GeometryReader { geo in
-      let size = min(geo.size.width, geo.size.height)
-      let sum = max(total, 1)
-      var start = Angle.degrees(-90)
-      var angles: [(start: Angle, end: Angle)] = []
-      for s in slices {
-        let frac = Double(s.count) / sum
-        let end = start + .degrees(frac * 360)
-        angles.append((start: start, end: end))
-        start = end
-      }
-      
-      ZStack {
-        ForEach(slices.indices, id: \.self) { i in
-          let s = slices[i]
-          let a = angles[i]
-          RingSlice(startAngle: a.start, endAngle: a.end, innerRatio: innerRatio)
-            .fill(s.color)
-        }
-        VStack(spacing: 2) {
-          Text("총").font(.caption2).foregroundStyle(.secondary)
-          Text("\(Int(total))").font(.title3.bold())
-        }
-      }
-      .frame(width: size, height: size)
-    }
-  }
-}
 
 struct RingSlice: Shape {
   var startAngle: Angle
