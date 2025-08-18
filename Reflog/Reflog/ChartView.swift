@@ -6,6 +6,12 @@
 
 import SwiftUI
 
+extension MonthlyLineChartNative {
+  init(data: [Item], currentMonth: Int, tickValues: [Double]) {
+    self.init(data: data, currentMonth: currentMonth)
+  }
+}
+
 private enum ChartSegment: String, CaseIterable, Identifiable {
   case history = "회고 이력"
   case memoStats = "회고 통계"
@@ -662,14 +668,14 @@ private struct MemoStatsSectionView: View {
   let dayCounts: [Date: Int]
 
   private var totalMemoCount: Int { dayCounts.values.reduce(0, +) }
-  private var thisMonthMemoCount: Int {
-    let cal = Calendar.current
-    let now = Date()
-    return dayCounts.reduce(0) { acc, pair in
-      let (day, count) = pair
-      return cal.isDate(day, equalTo: now, toGranularity: .month)
-        ? acc + count : acc
-    }
+
+  // ✅ 올해 1월 ~ 현재 월까지의 "월 평균 작성수"
+  private var monthlyAverageCount: Double {
+    let total = thisYearMonthlyData.reduce(0) { $0 + $1.count }
+    return Double(total) / Double(max(currentMonth, 1))
+  }
+  private var monthlyAverageString: String {
+    String(format: "%.1f", monthlyAverageCount)
   }
 
   private var last7Days: [Date] {
@@ -726,8 +732,9 @@ private struct MemoStatsSectionView: View {
 
         SettingsCard {
           HStack(spacing: 12) {
-            StatCard(title: "총 메모수", value: "\(totalMemoCount)")
-            StatCard(title: "이번달 작성한 횟수", value: "\(thisMonthMemoCount)")
+            StatCard(title: "총 메모", value: "\(totalMemoCount)")
+            // ✅ 타이틀/값 교체
+            StatCard(title: "올해 월 평균 메모", value: monthlyAverageString)
           }
         }
 
@@ -765,6 +772,7 @@ private struct MemoStatsSectionView: View {
     }
   }
 }
+
 
 private struct StatCard: View {
   let title: String

@@ -1,4 +1,4 @@
-//
+  //
 //  ChartViewComponent.swift
 //  Review
 //
@@ -15,22 +15,26 @@ struct NativeSlice: Identifiable, Hashable {
 }
 
 struct TrailingYAxis: View {
-  var ticks: [Int] = [5,10,15,20]
-  var yMax: Int = 20
+  var ticks: [Int] = [5, 15, 25, 40]
+  var yMax: Int = 40
+  var yMin: Int = 5
+
   var body: some View {
     GeometryReader { geo in
       let h = max(geo.size.height, 1)
+      let denom = CGFloat(max(yMax - yMin, 1))
       ZStack(alignment: .trailing) {
         ForEach(ticks, id: \.self) { t in
-          let ratio = CGFloat(t) / CGFloat(max(yMax, 1))
+          let ratio = CGFloat(t - yMin) / denom
           let y = (1 - ratio) * h
+
           Path { p in
             p.move(to: CGPoint(x: 0, y: y))
             p.addLine(to: CGPoint(x: geo.size.width, y: y))
           }
           .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
           .allowsHitTesting(false)
-          
+
           Text("\(t)")
             .font(.caption)
             .foregroundStyle(.secondary)
@@ -47,11 +51,14 @@ struct Last7BarChartNative: View {
 
   private var data: [Item]
   private var ticks: [Int]
-  private var yMax: Int = 20
+  private var yMax: Int
 
-  init(data: [Item], tickValues: [Double] = [5,10,15,20]) {
+  init(data: [Item], tickValues: [Double] = [10, 25, 40, 50]) {
     self.data = data
-    self.ticks = tickValues.map(Int.init)
+    let ints = tickValues.map(Int.init)
+    self.ticks = ints
+    let dataMax = data.map(\.count).max() ?? 0
+    self.yMax = max(ints.max() ?? 0, dataMax, 1)
   }
 
   var body: some View {
@@ -67,23 +74,28 @@ struct Last7BarChartNative: View {
       let totalSpacing = spacing * CGFloat(max(count - 1, 0))
       let plotW = max(W - rightPad - totalSpacing, 1)
       let barW = max(plotW / CGFloat(count), 8)
-      let labelGap: CGFloat = 15   // ← 막대 위 간격
+      let labelGap: CGFloat = 15
+
+      // ⬇️ 지역 함수 → 클로저로 변경
+      let barHeight: (Int) -> CGFloat = { value in
+        let ratio = CGFloat(value) / CGFloat(max(yMax, 1))
+        return max(ratio * chartH, 0)
+      }
 
       ZStack(alignment: .bottomLeading) {
-        TrailingYAxis(ticks: ticks, yMax: yMax)
+        TrailingYAxis(ticks: ticks, yMax: yMax) // yMin 기본값(5) 사용
           .frame(width: W, height: chartH)
           .padding(.trailing, rightPad)
           .offset(y: topPad)
 
         HStack(alignment: .bottom, spacing: spacing) {
           ForEach(data) { it in
-            let h = CGFloat(it.count) / CGFloat(max(yMax, 1)) * chartH
+            let h = barHeight(it.count)
             VStack(spacing: 4) {
               RoundedRectangle(cornerRadius: 6)
                 .fill(Color.accentColor)
                 .frame(width: barW, height: max(h, 0))
                 .overlay(alignment: .top) {
-                  // 숫자만, 막대 중앙 위 정렬
                   if it.count > 0 {
                     Text("\(it.count)")
                       .font(.caption.bold())
@@ -91,7 +103,6 @@ struct Last7BarChartNative: View {
                       .allowsHitTesting(false)
                   }
                 }
-
               Text(it.date, format: .dateTime.day())
                 .font(.caption2)
                 .frame(height: xLabelH)
@@ -110,13 +121,13 @@ struct MonthlyLineChartNative: View {
 
   private var data: [Item]
   private var currentMonth: Int
-  private var ticks: [Int]
-  private var yMax: Int = 20
+  private var ticks: [Int] = [5, 15, 25, 40]
+  private var yMin: Int = 5
+  private var yMax: Int = 40
 
-  init(data: [Item], currentMonth: Int, tickValues: [Double] = [5,10,15,20]) {
+  init(data: [Item], currentMonth: Int) {
     self.data = data
     self.currentMonth = max(currentMonth, 1)
-    self.ticks = tickValues.map(Int.init)
   }
 
   var body: some View {
@@ -130,18 +141,22 @@ struct MonthlyLineChartNative: View {
       let plotW = max(W - rightPad - leftPad, 1)
       let plotH = max(H - bottom - top, 1)
       let step = plotW / CGFloat(max(currentMonth - 1, 1))
-      let labelGap: CGFloat = 15  // ← 점 위 간격
+      let labelGap: CGFloat = 15
 
+      // ⬇️ 지역 함수 → 클로저로 변경 (암시적 return)
       let xFor: (Int) -> CGFloat = { m in
         currentMonth > 1 ? (leftPad + CGFloat(m - 1) * step) : (leftPad + plotW / 2)
       }
+      let clamp: (Int) -> Int = { v in min(max(v, yMin), yMax) }
       let yFor: (Int) -> CGFloat = { c in
-        let ratio = CGFloat(c) / CGFloat(max(yMax, 1))
+        let v = clamp(c)
+        let denom = CGFloat(max(yMax - yMin, 1))
+        let ratio = CGFloat(v - yMin) / denom
         return top + (1 - ratio) * plotH
       }
 
       ZStack(alignment: .bottomLeading) {
-        TrailingYAxis(ticks: ticks, yMax: yMax)
+        TrailingYAxis(ticks: ticks, yMax: yMax, yMin: yMin)
           .frame(width: W, height: plotH)
           .padding(.trailing, rightPad)
           .offset(y: top)
@@ -163,10 +178,10 @@ struct MonthlyLineChartNative: View {
             .fill(Color.accentColor)
             .frame(width: 6, height: 6)
             .position(x: px, y: py)
+
           if it.count > 0 {
             Text("\(it.count)")
               .font(.caption.bold())
-            //.system(size: 16, weight: .bold)
               .position(x: px, y: py - labelGap)
               .allowsHitTesting(false)
           }
@@ -187,8 +202,6 @@ struct MonthlyLineChartNative: View {
   }
 }
 
-
-
 struct RingSlice: Shape {
   var startAngle: Angle
   var endAngle: Angle
@@ -199,7 +212,8 @@ struct RingSlice: Shape {
     let innerR = outerR * innerRatio
     var p = Path()
     p.addArc(center: center, radius: outerR, startAngle: startAngle, endAngle: endAngle, clockwise: false)
-    p.addLine(to: CGPoint(x: center.x + innerR * CGFloat(cos(endAngle.radians)), y: center.y + innerR * CGFloat(sin(endAngle.radians))))
+    p.addLine(to: CGPoint(x: center.x + innerR * CGFloat(cos(endAngle.radians)),
+                          y: center.y + innerR * CGFloat(sin(endAngle.radians))))
     p.addArc(center: center, radius: innerR, startAngle: endAngle, endAngle: startAngle, clockwise: true)
     p.closeSubpath()
     return p
@@ -208,7 +222,7 @@ struct RingSlice: Shape {
 
 struct HBarListNative: View {
   var items: [NativeSlice]
-  
+
   var body: some View {
     let maxV = max(items.map { $0.count }.max() ?? 1, 1)
     VStack(spacing: 8) {
@@ -218,6 +232,7 @@ struct HBarListNative: View {
             .font(.subheadline)
             .lineLimit(1)
             .frame(width: 64, alignment: .leading)
+
           GeometryReader { geo in
             let w = geo.size.width
             let ratio = CGFloat(it.count) / CGFloat(maxV)
@@ -227,6 +242,7 @@ struct HBarListNative: View {
             }
           }
           .frame(height: 16)
+
           Text("\(it.count)")
             .font(.caption.weight(.semibold))
             .frame(width: 36, alignment: .trailing)
