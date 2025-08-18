@@ -157,19 +157,19 @@ struct MonthlyLineChartNative: View {
         .stroke(Color.accentColor, lineWidth: 2)
 
         ForEach(data) { it in
-          // overlay를 position보다 "앞"에 두어 숫자가 점 기준으로 정확히 정중앙
+          let px = xFor(it.month)
+          let py = yFor(it.count)
           Circle()
             .fill(Color.accentColor)
             .frame(width: 6, height: 6)
-            .overlay(alignment: .top) {
-              if it.count > 0 {
-                Text("\(it.count)")
-                  .font(.caption.bold())
-                  .offset(y: -labelGap)
-                  .allowsHitTesting(false)
-              }
-            }
-            .position(x: xFor(it.month), y: yFor(it.count))
+            .position(x: px, y: py)
+          if it.count > 0 {
+            Text("\(it.count)")
+              .font(.caption.bold())
+            //.system(size: 16, weight: .bold)
+              .position(x: px, y: py - labelGap)
+              .allowsHitTesting(false)
+          }
         }
 
         HStack(spacing: 0) {
