@@ -135,7 +135,7 @@ private struct HistorySectionView: View {
   var body: some View {
     let content = ScrollView(.vertical, showsIndicators: true) {
       VStack(alignment: .leading, spacing: 16) {
-        Text("회고 이력").font(.title3.weight(.semibold))
+   //     Text("회고 이력").font(.title3.weight(.semibold))
 
         SettingsCard {
           MonthHeader(
@@ -669,7 +669,7 @@ private struct MemoStatsSectionView: View {
   var body: some View {
     ScrollView(.vertical, showsIndicators: true) {
       VStack(alignment: .leading, spacing: 16) {
-        Text("회고 통계").font(.title3.weight(.semibold))
+     //   Text("회고 통계").font(.title3.weight(.semibold))
 
         SettingsCard {
           HStack(spacing: 12) {
@@ -681,7 +681,7 @@ private struct MemoStatsSectionView: View {
         // 최근 1주 네이티브 막대
         SettingsCard {
           VStack(alignment: .leading, spacing: 12) {
-            Text("최근 1주 추이").font(.headline)
+            Text("최근 1주 Log").font(.headline)
             Last7BarChartNative(
               data: last7Data.map { Last7BarChartNative.Item(date: $0.date, count: $0.count) }
             )
@@ -693,7 +693,7 @@ private struct MemoStatsSectionView: View {
         // 월별 네이티브 라인
         SettingsCard {
           VStack(alignment: .leading, spacing: 12) {
-            Text("\(currentYearString)년 월별 추이").font(.headline)
+            Text("\(currentYearString)년 월별 Log").font(.headline)
             MonthlyLineChartNative(
               data: thisYearMonthlyData.map { MonthlyLineChartNative.Item(month: $0.month, count: $0.count) },
               currentMonth: currentMonth,
@@ -865,7 +865,7 @@ private struct KeywordStatsSectionView: View {
   var body: some View {
     ScrollView(.vertical, showsIndicators: true) {
       VStack(alignment: .leading, spacing: 16) {
-        Text("태그 통계").font(.title3.weight(.semibold))
+      //  Text("태그 통계").font(.title3.weight(.semibold))
 
         // 도넛 카드
         SettingsCard {
