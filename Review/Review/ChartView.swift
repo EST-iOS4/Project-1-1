@@ -684,8 +684,9 @@ private struct KeywordStatsSectionView: View {
                   slices: donutSlices.map { NativeSlice(name: $0.name, count: $0.count, color: $0.color) },
                   innerRatio: 0.6
                 )
-                .frame(height: 220)
+                .frame(width: 220, height: 220)
               }
+              .frame(maxWidth: .infinity, alignment: .center)
               //              .overlay(alignment: .center) {
               //                if donutTotal > 0 {
               //                  VStack(spacing: 2) {

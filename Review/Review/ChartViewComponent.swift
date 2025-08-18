@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// MARK: - Shared model
 struct NativeSlice: Identifiable, Hashable {
   let id = UUID()
   var name: String
@@ -15,7 +14,6 @@ struct NativeSlice: Identifiable, Hashable {
   var color: Color
 }
 
-// MARK: - Trailing Y Axis (grid + labels)
 struct TrailingYAxis: View {
   var ticks: [Int] = [5,10,15,20]
   var yMax: Int = 20
@@ -44,23 +42,18 @@ struct TrailingYAxis: View {
   }
 }
 
-// MARK: - Last 7 Days Bar (Vertical)
 struct Last7BarChartNative: View {
-  struct Item: Identifiable {
-    var id: Date { date }
-    var date: Date
-    var count: Int
-  }
-  
+  struct Item: Identifiable { var id: Date { date }; var date: Date; var count: Int }
+
   private var data: [Item]
   private var ticks: [Int]
-  private var yMax: Int = 20 // fixed
-  
+  private var yMax: Int = 20
+
   init(data: [Item], tickValues: [Double] = [5,10,15,20]) {
     self.data = data
     self.ticks = tickValues.map(Int.init)
   }
-  
+
   var body: some View {
     GeometryReader { geo in
       let W = geo.size.width
@@ -74,13 +67,14 @@ struct Last7BarChartNative: View {
       let totalSpacing = spacing * CGFloat(max(count - 1, 0))
       let plotW = max(W - rightPad - totalSpacing, 1)
       let barW = max(plotW / CGFloat(count), 8)
-      
+      let labelGap: CGFloat = 15   // ← 막대 위 간격
+
       ZStack(alignment: .bottomLeading) {
         TrailingYAxis(ticks: ticks, yMax: yMax)
           .frame(width: W, height: chartH)
           .padding(.trailing, rightPad)
           .offset(y: topPad)
-        
+
         HStack(alignment: .bottom, spacing: spacing) {
           ForEach(data) { it in
             let h = CGFloat(it.count) / CGFloat(max(yMax, 1)) * chartH
@@ -89,17 +83,19 @@ struct Last7BarChartNative: View {
                 .fill(Color.accentColor)
                 .frame(width: barW, height: max(h, 0))
                 .overlay(alignment: .top) {
+                  // 숫자만, 막대 중앙 위 정렬
                   if it.count > 0 {
                     Text("\(it.count)")
                       .font(.caption.bold())
-                      .padding(.bottom, 2)
+                      .offset(y: -labelGap)
+                      .allowsHitTesting(false)
                   }
                 }
+
               Text(it.date, format: .dateTime.day())
                 .font(.caption2)
                 .frame(height: xLabelH)
             }
-            .frame(maxWidth: .infinity, alignment: .bottom)
           }
         }
         .padding(.trailing, rightPad)
@@ -109,18 +105,13 @@ struct Last7BarChartNative: View {
   }
 }
 
-// MARK: - Monthly Line (1..currentMonth)
 struct MonthlyLineChartNative: View {
-  struct Item: Identifiable {
-    var id: Int { month }
-    var month: Int
-    var count: Int
-  }
+  struct Item: Identifiable { var id: Int { month }; var month: Int; var count: Int }
 
   private var data: [Item]
   private var currentMonth: Int
   private var ticks: [Int]
-  private var yMax: Int = 20 // fixed
+  private var yMax: Int = 20
 
   init(data: [Item], currentMonth: Int, tickValues: [Double] = [5,10,15,20]) {
     self.data = data
@@ -139,8 +130,8 @@ struct MonthlyLineChartNative: View {
       let plotW = max(W - rightPad - leftPad, 1)
       let plotH = max(H - bottom - top, 1)
       let step = plotW / CGFloat(max(currentMonth - 1, 1))
+      let labelGap: CGFloat = 15  // ← 점 위 간격
 
-      // 인라인 좌표 계산 (중첩 함수/클로저 선언 없음)
       let xFor: (Int) -> CGFloat = { m in
         currentMonth > 1 ? (leftPad + CGFloat(m - 1) * step) : (leftPad + plotW / 2)
       }
@@ -166,18 +157,19 @@ struct MonthlyLineChartNative: View {
         .stroke(Color.accentColor, lineWidth: 2)
 
         ForEach(data) { it in
+          // overlay를 position보다 "앞"에 두어 숫자가 점 기준으로 정확히 정중앙
           Circle()
             .fill(Color.accentColor)
             .frame(width: 6, height: 6)
-            .position(x: xFor(it.month), y: yFor(it.count))
             .overlay(alignment: .top) {
               if it.count > 0 {
                 Text("\(it.count)")
                   .font(.caption.bold())
-                  .padding(.bottom, 2)
-                  .offset(y: -10)
+                  .offset(y: -labelGap)
+                  .allowsHitTesting(false)
               }
             }
+            .position(x: xFor(it.month), y: yFor(it.count))
         }
 
         HStack(spacing: 0) {
@@ -194,6 +186,7 @@ struct MonthlyLineChartNative: View {
     }
   }
 }
+
 
 
 struct RingSlice: Shape {
@@ -213,7 +206,6 @@ struct RingSlice: Shape {
   }
 }
 
-// MARK: - Horizontal Bar List (for Keywords)
 struct HBarListNative: View {
   var items: [NativeSlice]
   
