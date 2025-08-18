@@ -7,14 +7,14 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		7B478BC52E498A9F0078B842 /* Review.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Review.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B478BC52E498A9F0078B842 /* Reflog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reflog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7DE958212E4B3B0B001F0AC8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = "/Users/song-yeongmin/Documents/Info.plist"; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7B478BC72E498A9F0078B842 /* Review */ = {
+		7B478BC72E498A9F0078B842 /* Reflog */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Review;
+			path = Reflog;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -34,7 +34,7 @@
 			isa = PBXGroup;
 			children = (
 				7DE958212E4B3B0B001F0AC8 /* Info.plist */,
-				7B478BC72E498A9F0078B842 /* Review */,
+				7B478BC72E498A9F0078B842 /* Reflog */,
 				7B478BC62E498A9F0078B842 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -42,7 +42,7 @@
 		7B478BC62E498A9F0078B842 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7B478BC52E498A9F0078B842 /* Review.app */,
+				7B478BC52E498A9F0078B842 /* Reflog.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -50,9 +50,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7B478BC42E498A9F0078B842 /* Review */ = {
+		7B478BC42E498A9F0078B842 /* Reflog */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B478BD02E498AA00078B842 /* Build configuration list for PBXNativeTarget "Review" */;
+			buildConfigurationList = 7B478BD02E498AA00078B842 /* Build configuration list for PBXNativeTarget "Reflog" */;
 			buildPhases = (
 				7B478BC12E498A9F0078B842 /* Sources */,
 				7B478BC22E498A9F0078B842 /* Frameworks */,
@@ -63,13 +63,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7B478BC72E498A9F0078B842 /* Review */,
+				7B478BC72E498A9F0078B842 /* Reflog */,
 			);
-			name = Review;
+			name = Reflog;
 			packageProductDependencies = (
 			);
 			productName = Review;
-			productReference = 7B478BC52E498A9F0078B842 /* Review.app */;
+			productReference = 7B478BC52E498A9F0078B842 /* Reflog.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -87,7 +87,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7B478BC02E498A9F0078B842 /* Build configuration list for PBXProject "Review" */;
+			buildConfigurationList = 7B478BC02E498A9F0078B842 /* Build configuration list for PBXProject "Reflog" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -101,7 +101,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7B478BC42E498A9F0078B842 /* Review */,
+				7B478BC42E498A9F0078B842 /* Reflog */,
 			);
 		};
 /* End PBXProject section */
@@ -307,7 +307,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7B478BC02E498A9F0078B842 /* Build configuration list for PBXProject "Review" */ = {
+		7B478BC02E498A9F0078B842 /* Build configuration list for PBXProject "Reflog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7B478BCE2E498AA00078B842 /* Debug */,
@@ -316,7 +316,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B478BD02E498AA00078B842 /* Build configuration list for PBXNativeTarget "Review" */ = {
+		7B478BD02E498AA00078B842 /* Build configuration list for PBXNativeTarget "Reflog" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7B478BD12E498AA00078B842 /* Debug */,

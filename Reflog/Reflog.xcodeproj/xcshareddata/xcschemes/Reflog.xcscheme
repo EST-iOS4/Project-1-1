@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7B478BC42E498A9F0078B842"
-               BuildableName = "Review.app"
-               BlueprintName = "Review"
-               ReferencedContainer = "container:Review.xcodeproj">
+               BuildableName = "Reflog.app"
+               BlueprintName = "Reflog"
+               ReferencedContainer = "container:Reflog.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7B478BC42E498A9F0078B842"
-            BuildableName = "Review.app"
-            BlueprintName = "Review"
-            ReferencedContainer = "container:Review.xcodeproj">
+            BuildableName = "Reflog.app"
+            BlueprintName = "Reflog"
+            ReferencedContainer = "container:Reflog.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7B478BC42E498A9F0078B842"
-            BuildableName = "Review.app"
-            BlueprintName = "Review"
-            ReferencedContainer = "container:Review.xcodeproj">
+            BuildableName = "Reflog.app"
+            BlueprintName = "Reflog"
+            ReferencedContainer = "container:Reflog.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
