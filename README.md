@@ -26,5 +26,4 @@
 ---
 
 ## 📱 App Icon
-<img src="Review/Review/Reflog/Assets.xcassets/AppIcon.appiconset/Team1_Icon.png" alt="App Icon" width="120" />
-
+<img width="1024" height="1024" alt="Team1_Icon" src="https://github.com/user-attachments/assets/c80e9f29-4b4e-473b-93e0-e5fd57030a55" />
