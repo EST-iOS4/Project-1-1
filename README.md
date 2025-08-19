@@ -26,4 +26,4 @@
 ---
 
 ## 📱 App Icon
-<img width="600" height="600" alt="Team1_Icon" src="https://github.com/user-attachments/assets/c80e9f29-4b4e-473b-93e0-e5fd57030a55" />
+<img width="200" height="200" alt="Team1_Icon" src="https://github.com/user-attachments/assets/c80e9f29-4b4e-473b-93e0-e5fd57030a55" />
