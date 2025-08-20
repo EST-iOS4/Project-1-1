@@ -128,7 +128,7 @@ struct TexteditView: View {
       .clipShape(RoundedRectangle(cornerRadius: 12))
       .overlay(
         RoundedRectangle(cornerRadius: 12)
-          .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+          .stroke(Color.gray.opacity(0.2), lineWidth: 1)
       )
       .focused($focusedField, equals: .title)
       .padding(.horizontal)
@@ -156,7 +156,7 @@ struct TexteditView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
           RoundedRectangle(cornerRadius: 12)
-            .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
         )
         .focused($focusedField, equals: .tag)
         .onSubmit(addTagFromSubmit)
@@ -185,7 +185,7 @@ struct TexteditView: View {
       .clipShape(RoundedRectangle(cornerRadius: 12))
       .overlay(
         RoundedRectangle(cornerRadius: 12)
-          .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+          .stroke(Color.gray.opacity(0.2), lineWidth: 1)
       )
       .overlay(alignment: .topLeading) {
         if reviewText.isEmpty {
@@ -201,19 +201,36 @@ struct TexteditView: View {
   private var tagSuggestionView: some View {
     ScrollView {
       if tagSuggestions.isEmpty {
-        Text("일치하는 태그가 없습니다.")
-          .font(.system(size: fontSize))
-          .font(.callout)
-          .foregroundColor(.secondary)
-          .frame(maxWidth: .infinity, alignment: .center)
-          .padding(.vertical, 20)
+        Button(action: {
+          addTag(fromString: currentTagInput)
+        }) {
+          HStack {
+            Text("눌러서 태그 생성:")
+              .foregroundStyle(.secondary)
+            Text(currentTagInput)
+              .fontWeight(.semibold)
+              .foregroundStyle(Color.accentColor)
+            Spacer()
+          }
+          .padding(.horizontal, 15)
+          .padding(.vertical, 10)
+          .background(Color(uiColor: .secondarySystemBackground))
+          .clipShape(RoundedRectangle(cornerRadius: 8))
+          .overlay(
+            RoundedRectangle(cornerRadius: 8)
+              .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+          )
+          .contentShape(Rectangle())
+          .padding(10)
+        }
+        .disabled(currentTagInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        
       } else {
-        LazyVStack(alignment: .leading, spacing: 0) {
+        LazyVStack(alignment: .leading, spacing: 8) {
           ForEach(tagSuggestions, id: \.self) { suggestion in
             HStack {
               Text(suggestion)
-                .font(.system(size: fontSize))
-                .padding(.vertical, 4)
+                .font(.system(size: fontSize - 2))
               Spacer()
               Image(systemName: "xmark.circle.fill")
                 .foregroundStyle(.gray.opacity(0.4))
@@ -223,18 +240,21 @@ struct TexteditView: View {
                   }
                 }
             }
-            .padding(.horizontal, 15)
-            .padding(.vertical, 8)
+            .padding(10)
+            .background(Color(uiColor: .secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+              RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+            )
             .contentShape(Rectangle())
             .onTapGesture {
               addTag(fromString: suggestion)
             }
-            
-            if suggestion != tagSuggestions.last {
-              Divider().padding(.leading, 15)
-            }
           }
         }
+        .padding(.horizontal)
+        .padding(.top, 10)
       }
     }
     .frame(height: 200)
